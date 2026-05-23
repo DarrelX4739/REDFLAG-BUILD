@@ -1,3 +1,14 @@
+// CONFIGURATION: Replace the text inside the quotes with your actual Supabase credentials
+const SUPABASE_URL = "sb_publishable_wsMn3PgnOS8sss77zfcKkQ_OnNF4l40"; 
+const SUPABASE_ANON_KEY = "sb_secret_KjXTdt9pzeyrrRQeyVvwwA_MBCB-HNr";
+
+// Inject Supabase library directly from CDN
+const script = document.createElement('script');
+script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+document.head.appendChild(script);
+
+let supabaseClient;
+
 function checkPassword() {
     const input = document.getElementById('password-input').value;
     const errorMsg = document.getElementById('error-msg');
@@ -5,6 +16,9 @@ function checkPassword() {
     if (input === '4739') {
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
+        
+        // Initialize Supabase client
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         initApp();
     } else {
         errorMsg.style.display = 'block';
@@ -24,17 +38,36 @@ const defaultData = {
 
 let appData = {};
 
-function initApp() {
-    // This wipes older saved data setups to force display the new layout columns correctly
-    localStorage.removeItem('redflag_schedule_data');
-    
-    appData = JSON.parse(JSON.stringify(defaultData));
-    saveToStorage();
+async function initApp() {
+    // Fetch initial configuration state from Cloud DB storage row
+    const { data, error } = await supabaseClient
+        .from('schedule')
+        .select('data')
+        .eq('id', 1)
+        .single();
+
+    if (data) {
+        appData = data.data;
+    } else {
+        appData = JSON.parse(JSON.stringify(defaultData));
+        await saveToCloud();
+    }
     renderSchedule();
+
+    // Open Realtime Websocket channel network listener pipeline
+    supabaseClient
+        .channel('schema-db-changes')
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedule', filter: 'id=eq.1' }, payload => {
+            appData = payload.new.data;
+            renderSchedule();
+        })
+        .subscribe();
 }
 
-function saveToStorage() {
-    localStorage.setItem('redflag_schedule_data', JSON.stringify(appData));
+async function saveToCloud() {
+    await supabaseClient
+        .from('schedule')
+        .upsert({ id: 1, data: appData });
 }
 
 function renderSchedule() {
@@ -85,9 +118,11 @@ function renderSchedule() {
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.value = rowData[cIdx] || '';
-                input.addEventListener('input', (e) => {
+                
+                // Triggers structural data save upon cloud synchronization events
+                input.addEventListener('change', async (e) => {
                     appData.values[day][rIdx][cIdx] = e.target.value;
-                    saveToStorage();
+                    await saveToCloud();
                 });
                 td.appendChild(input);
                 tr.appendChild(td);
@@ -102,23 +137,23 @@ function renderSchedule() {
     });
 }
 
-function addRow(day) {
+async function addRow(day) {
     const newRow = new Array(appData.headers.length).fill('');
     if (!appData.values[day]) appData.values[day] = [];
     appData.values[day].push(newRow);
-    saveToStorage(); 
+    await saveToCloud(); 
     renderSchedule();
 }
 
-function deleteRow(day) {
+async function deleteRow(day) {
     if (appData.values[day] && appData.values[day].length > 1) {
         appData.values[day].pop();
-        saveToStorage(); 
+        await saveToCloud(); 
         renderSchedule();
     }
 }
 
-function addColumn() {
+async function addColumn() {
     const colName = prompt("Enter column name:");
     if (colName) {
         appData.headers.push(colName);
@@ -127,12 +162,12 @@ function addColumn() {
                 appData.values[day].forEach(row => row.push(''));
             }
         });
-        saveToStorage(); 
+        await saveToCloud(); 
         renderSchedule();
     }
 }
 
-function deleteColumn() {
+async function deleteColumn() {
     if (appData.headers.length > 1) {
         appData.headers.pop();
         appData.days.forEach(day => {
@@ -140,7 +175,7 @@ function deleteColumn() {
                 appData.values[day].forEach(row => row.pop());
             }
         });
-        saveToStorage(); 
+        await saveToCloud(); 
         renderSchedule();
     }
 }
