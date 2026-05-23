@@ -1,6 +1,6 @@
 // CONFIGURATION: Replace the text inside the quotes with your actual Supabase credentials
 const SUPABASE_URL = "sb_publishable_wsMn3PgnOS8sss77zfcKkQ_OnNF4l40"; 
-const SUPABASE_ANON_KEY = "sb_secret_KjXTdt9pzeyrrRQeyVvwwA_MBCB-HNr";
+const SUPABASE_ANON_KEY = "sb_secret_CAthNvXmMbM0NC4IBAz5zg_-_AYdsy9";
 
 // Inject Supabase library directly from CDN
 const script = document.createElement('script');
@@ -33,46 +33,68 @@ document.getElementById('password-input').addEventListener('keypress', function(
 const defaultData = {
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     headers: ['Morning', 'Recess', 'Lunch', 'Afternoon'],
-    rows: [['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    rows: [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+    values: {
+        'Monday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Tuesday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Wednesday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Thursday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Friday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
+    }
 };
 
 let appData = {};
 
 async function initApp() {
-    // Fetch initial configuration state from Cloud DB storage row
-    const { data, error } = await supabaseClient
-        .from('schedule')
-        .select('data')
-        .eq('id', 1)
-        .single();
+    try {
+        // Fetch initial setup from Supabase
+        const { data, error } = await supabaseClient
+            .from('schedule')
+            .select('data')
+            .eq('id', 1);
 
-    if (data) {
-        appData = data.data;
-    } else {
+        // If data exists in the cloud, use it
+        if (data && data.length > 0) {
+            appData = data[0].data;
+        } else {
+            // FIXED: If cloud is completely empty, use default data and create the row
+            appData = JSON.parse(JSON.stringify(defaultData));
+            await saveToCloud();
+        }
+        renderSchedule();
+    } catch (err) {
+        console.error("Error loading data, falling back to local layout:", err);
         appData = JSON.parse(JSON.stringify(defaultData));
-        await saveToCloud();
+        renderSchedule();
     }
-    renderSchedule();
 
-    // Open Realtime Websocket channel network listener pipeline
+    // Open Realtime channel to listen for other users' changes
     supabaseClient
         .channel('schema-db-changes')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedule', filter: 'id=eq.1' }, payload => {
-            appData = payload.new.data;
-            renderSchedule();
+            if (payload.new && payload.new.data) {
+                appData = payload.new.data;
+                renderSchedule();
+            }
         })
         .subscribe();
 }
 
 async function saveToCloud() {
-    await supabaseClient
-        .from('schedule')
-        .upsert({ id: 1, data: appData });
+    try {
+        await supabaseClient
+            .from('schedule')
+            .upsert({ id: 1, data: appData });
+    } catch (err) {
+        console.error("Failed to save data to Supabase:", err);
+    }
 }
 
 function renderSchedule() {
     const container = document.getElementById('schedule-container');
     container.innerHTML = '';
+
+    if (!appData.days) return;
 
     appData.days.forEach((day) => {
         const daySection = document.createElement('div');
@@ -119,7 +141,7 @@ function renderSchedule() {
                 input.type = 'text';
                 input.value = rowData[cIdx] || '';
                 
-                // Triggers structural data save upon cloud synchronization events
+                // Saves data to the cloud when you change text and click away
                 input.addEventListener('change', async (e) => {
                     appData.values[day][rIdx][cIdx] = e.target.value;
                     await saveToCloud();
