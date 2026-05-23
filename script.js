@@ -1,5 +1,5 @@
 // CONFIGURATION: Replace the URL placeholder below with your actual Supabase Project URL
-const SUPABASE_URL = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ3JiemNrYXlkd2dqY3pxa29yIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTU1NzYwMSwiZXhwIjoyMDk1MTMzNjAxfQ.SPxJRchQn1BUYAC3Om3zQ-dmoD5AMgeYOgC4v9v7r5Q"; 
+const SUPABASE_URL = "sb_publishable_wsMn3PgnOS8sss77zfcKkQ_OnNF4l40"; 
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ3JiemNrYXlkd2dqY3pxa29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NTc2MDEsImV4cCI6MjA5NTEzMzYwMX0.ElTZ8PfPfPPiewHQSRW27WGrgzmovEWmc5f0yHdr9rw"; // Filled automatically from your screenshot
 
 // Inject Supabase library directly from CDN
