@@ -1,13 +1,18 @@
-// CONFIGURATION: Replace the URL placeholder below with your actual Supabase Project URL
-const SUPABASE_URL = "sb_publishable_wsMn3PgnOS8sss77zfcKkQ_OnNF4l40"; 
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ3JiemNrYXlkd2dqY3pxa29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NTc2MDEsImV4cCI6MjA5NTEzMzYwMX0.ElTZ8PfPfPPiewHQSRW27WGrgzmovEWmc5f0yHdr9rw"; // Filled automatically from your screenshot
+// CONFIGURATION: Paste your actual Firebase web app details inside the quotes below
+const FIREBASE_API_KEY = "AIzaSyBoNeyQM6aUZ7IjJ5RPPXwxPRGFEaYO75M";
+const FIREBASE_AUTH_DOMAIN = "redflag-build.firebaseapp.com";
+const FIREBASE_DATABASE_URL = "https://redflag-build-default-rtdb.firebaseio.com";
 
-// Inject Supabase library directly from CDN
-const script = document.createElement('script');
-script.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
-document.head.appendChild(script);
+// Inject the standard Firebase App and Database SDK libraries via CDN
+const scriptApp = document.createElement('script');
+scriptApp.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js';
+document.head.appendChild(scriptApp);
 
-let supabaseClient;
+const scriptDB = document.createElement('script');
+scriptDB.src = 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js';
+document.head.appendChild(scriptDB);
+
+let db;
 
 function checkPassword() {
     const input = document.getElementById('password-input').value;
@@ -17,8 +22,15 @@ function checkPassword() {
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         
-        // Initialize standard Supabase client configuration
-        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // Initialize Firebase client connections
+        const firebaseConfig = {
+            apiKey: FIREBASE_API_KEY,
+            authDomain: FIREBASE_AUTH_DOMAIN,
+            databaseURL: FIREBASE_DATABASE_URL
+        };
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.database();
+        
         initApp();
     } else {
         errorMsg.style.display = 'block';
@@ -30,6 +42,7 @@ document.getElementById('password-input').addEventListener('keypress', function(
     if (e.key === 'Enter') checkPassword();
 });
 
+// PREBUILT DATA: The fallback template used if your cloud database is totally empty
 const defaultData = {
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     headers: ['Morning', 'Recess', 'Lunch', 'Afternoon'],
@@ -45,45 +58,23 @@ const defaultData = {
 
 let appData = {};
 
-async function initApp() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('schedule')
-            .select('data')
-            .eq('id', 1);
-
-        if (data && data.length > 0) {
-            appData = data[0].data;
+function initApp() {
+    // Set up a real-time live synchronization listener pipeline on the "shared_schedule" data tree path
+    db.ref('shared_schedule').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            appData = data;
         } else {
             appData = JSON.parse(JSON.stringify(defaultData));
-            await saveToCloud();
+            saveToCloud();
         }
         renderSchedule();
-    } catch (err) {
-        console.error("Database connection dropped, loading fallback layout:", err);
-        appData = JSON.parse(JSON.stringify(defaultData));
-        renderSchedule();
-    }
-
-    // Live sync streaming pipeline setup
-    supabaseClient
-        .channel('schema-db-changes')
-        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedule', filter: 'id=eq.1' }, payload => {
-            if (payload.new && payload.new.data) {
-                appData = payload.new.data;
-                renderSchedule();
-            }
-        })
-        .subscribe();
+    });
 }
 
-async function saveToCloud() {
-    try {
-        await supabaseClient
-            .from('schedule')
-            .upsert({ id: 1, data: appData });
-    } catch (err) {
-        console.error("Failed to commit updates to database context:", err);
+function saveToCloud() {
+    if (db) {
+        db.ref('shared_schedule').set(appData);
     }
 }
 
@@ -138,10 +129,10 @@ function renderSchedule() {
                 input.type = 'text';
                 input.value = rowData[cIdx] || '';
                 
-                // Triggers structural sync action upon input defocus
-                input.addEventListener('change', async (e) => {
+                // Updates Firebase live when user clicks away or completes typing
+                input.addEventListener('change', (e) => {
                     appData.values[day][rIdx][cIdx] = e.target.value;
-                    await saveToCloud();
+                    saveToCloud();
                 });
                 td.appendChild(input);
                 tr.appendChild(td);
@@ -156,23 +147,23 @@ function renderSchedule() {
     });
 }
 
-async function addRow(day) {
+function addRow(day) {
     const newRow = new Array(appData.headers.length).fill('');
     if (!appData.values[day]) appData.values[day] = [];
     appData.values[day].push(newRow);
-    await saveToCloud(); 
+    saveToCloud(); 
     renderSchedule();
 }
 
-async function deleteRow(day) {
+function deleteRow(day) {
     if (appData.values[day] && appData.values[day].length > 1) {
         appData.values[day].pop();
-        await saveToCloud(); 
+        saveToCloud(); 
         renderSchedule();
     }
 }
 
-async function addColumn() {
+function addColumn() {
     const colName = prompt("Enter column name:");
     if (colName) {
         appData.headers.push(colName);
@@ -181,12 +172,12 @@ async function addColumn() {
                 appData.values[day].forEach(row => row.push(''));
             }
         });
-        await saveToCloud(); 
+        saveToCloud(); 
         renderSchedule();
     }
 }
 
-async function deleteColumn() {
+function deleteColumn() {
     if (appData.headers.length > 1) {
         appData.headers.pop();
         appData.days.forEach(day => {
@@ -194,7 +185,7 @@ async function deleteColumn() {
                 appData.values[day].forEach(row => row.pop());
             }
         });
-        await saveToCloud(); 
+        saveToCloud(); 
         renderSchedule();
     }
 }
