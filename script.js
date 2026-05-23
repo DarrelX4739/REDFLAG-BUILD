@@ -1,6 +1,6 @@
-// CONFIGURATION: Replace the text inside the quotes with your actual Supabase credentials
-const SUPABASE_URL = "sb_publishable_wsMn3PgnOS8sss77zfcKkQ_OnNF4l40"; 
-const SUPABASE_ANON_KEY = "sb_secret_CAthNvXmMbM0NC4IBAz5zg_-_AYdsy9";
+// CONFIGURATION: Replace the URL placeholder below with your actual Supabase Project URL
+const SUPABASE_URL = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ3JiemNrYXlkd2dqY3pxa29yIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3OTU1NzYwMSwiZXhwIjoyMDk1MTMzNjAxfQ.SPxJRchQn1BUYAC3Om3zQ-dmoD5AMgeYOgC4v9v7r5Q"; 
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndjZ3JiemNrYXlkd2dqY3pxa29yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzk1NTc2MDEsImV4cCI6MjA5NTEzMzYwMX0.ElTZ8PfPfPPiewHQSRW27WGrgzmovEWmc5f0yHdr9rw"; // Filled automatically from your screenshot
 
 // Inject Supabase library directly from CDN
 const script = document.createElement('script');
@@ -17,7 +17,7 @@ function checkPassword() {
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         
-        // Initialize Supabase client
+        // Initialize standard Supabase client configuration
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         initApp();
     } else {
@@ -47,28 +47,25 @@ let appData = {};
 
 async function initApp() {
     try {
-        // Fetch initial setup from Supabase
         const { data, error } = await supabaseClient
             .from('schedule')
             .select('data')
             .eq('id', 1);
 
-        // If data exists in the cloud, use it
         if (data && data.length > 0) {
             appData = data[0].data;
         } else {
-            // FIXED: If cloud is completely empty, use default data and create the row
             appData = JSON.parse(JSON.stringify(defaultData));
             await saveToCloud();
         }
         renderSchedule();
     } catch (err) {
-        console.error("Error loading data, falling back to local layout:", err);
+        console.error("Database connection dropped, loading fallback layout:", err);
         appData = JSON.parse(JSON.stringify(defaultData));
         renderSchedule();
     }
 
-    // Open Realtime channel to listen for other users' changes
+    // Live sync streaming pipeline setup
     supabaseClient
         .channel('schema-db-changes')
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'schedule', filter: 'id=eq.1' }, payload => {
@@ -86,7 +83,7 @@ async function saveToCloud() {
             .from('schedule')
             .upsert({ id: 1, data: appData });
     } catch (err) {
-        console.error("Failed to save data to Supabase:", err);
+        console.error("Failed to commit updates to database context:", err);
     }
 }
 
@@ -141,7 +138,7 @@ function renderSchedule() {
                 input.type = 'text';
                 input.value = rowData[cIdx] || '';
                 
-                // Saves data to the cloud when you change text and click away
+                // Triggers structural sync action upon input defocus
                 input.addEventListener('change', async (e) => {
                     appData.values[day][rIdx][cIdx] = e.target.value;
                     await saveToCloud();
