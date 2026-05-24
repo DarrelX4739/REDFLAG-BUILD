@@ -209,29 +209,35 @@ input:focus {
     gap: 15px;
 }
 
+/* Message Rows Flex Layout System */
 .chat-msg-row {
-    display: block;
-    width: 100%;
-    clear: both;
+    display: flex !important;
+    width: 100% !important;
+    flex-direction: column !important;
 }
 
-/* Structural Alignment Rules via Auto-Margins */
+/* ALIGNMENT FLIP: Your messages (.self) go LEFT. Others go RIGHT. */
+.chat-msg-row.self {
+    align-items: flex-start !important;
+}
+
+.chat-msg-row:not(.self) {
+    align-items: flex-end !important;
+}
+
 .msg-container-block {
-    display: flex;
-    flex-direction: column;
-    max-width: 75%;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: 75% !important;
 }
 
-/* Your messages go left */
-.msg-left {
-    margin-right: auto;
-    align-items: flex-start;
+/* Match inner alignment rules with parent boundaries */
+.chat-msg-row.self .msg-container-block {
+    align-items: flex-start !important;
 }
 
-/* Others messages go right */
-.msg-right {
-    margin-left: auto;
-    align-items: flex-end;
+.chat-msg-row:not(.self) .msg-container-block {
+    align-items: flex-end !important;
 }
 
 .chat-msg-bubble {
