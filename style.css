@@ -11,40 +11,7 @@
 body {
     background-color: #0d0d0d;
     color: #e5e5e5;
-    -webkit-text-size-adjust: 100%; /* Prevents iOS font boosting bugs */
-}
-
-#password-screen {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    background-color: #0d0d0d;
-    padding: 20px;
-}
-
-.login-box {
-    background-color: #1a1a1a;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #ff1a1a;
-    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15);
-    text-align: center;
-    width: 100%;
-    max-width: 380px;
-}
-
-.login-box h2 {
-    color: #ff1a1a;
-    margin-bottom: 5px;
-    font-size: 1.5rem;
-    letter-spacing: 1px;
-}
-
-.login-box p {
-    color: #8c8c8c;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
+    -webkit-text-size-adjust: 100%;
 }
 
 input[type="password"], input[type="text"], input[type="email"] {
@@ -61,18 +28,6 @@ input[type="password"], input[type="text"], input[type="email"] {
 
 input:focus {
     border-color: #ff1a1a !important;
-}
-
-.toggle-auth-text, .forgot-text {
-    margin-top: 15px;
-    font-size: 0.85rem;
-    color: #8c8c8c;
-    cursor: pointer;
-}
-
-.accent-link, .forgot-text:hover {
-    color: #ff1a1a;
-    text-decoration: underline;
 }
 
 /* ==========================================================================
@@ -125,7 +80,7 @@ input:focus {
 }
 
 /* ==========================================================================
-   Grid Layouts and Views (Schedule with Tick Box Support)
+   Grid Layouts and Views (Schedule)
    ========================================================================== */
 .dashboard-view {
     padding: 20px;
@@ -150,13 +105,6 @@ input:focus {
     letter-spacing: 0.5px;
 }
 
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
 .btn {
     padding: 8px 16px;
     border: none;
@@ -167,19 +115,12 @@ input:focus {
     transition: background-color 0.2s, color 0.2s;
 }
 
-.login-box button, .btn-add {
+.btn-add {
     background-color: #ff1a1a;
     color: #ffffff;
-    width: auto;
-    margin-top: 15px;
 }
 
-.btn-add {
-    width: auto;
-    margin-top: 0;
-}
-
-.login-box button:hover, .btn-add:hover {
+.btn-add:hover {
     background-color: #cc0000;
 }
 
@@ -196,9 +137,9 @@ input:focus {
 
 .table-container { 
     width: 100%; 
-    overflow-x: auto; /* Allows safe side-scrolling on phone displays */
+    overflow-x: auto; 
     margin-top: 10px; 
-    -webkit-overflow-scrolling: touch; /* Smooth inertia scroll for iPhones */
+    -webkit-overflow-scrolling: touch;
 }
 
 table { 
@@ -224,16 +165,7 @@ td {
     border: 1px solid #333333; 
 }
 
-/* Flex container layout inside the cell to host the input text and checkbox seamlessly */
-.cell-action-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    width: 100%;
-}
-
 td input.schedule-input { 
-    flex-grow: 1;
     width: 100%; 
     background-color: transparent !important; 
     border: none !important; 
@@ -246,26 +178,10 @@ td input.schedule-input:focus {
     background-color: #2a2a2a !important; 
 }
 
-td input.schedule-input::placeholder { 
+td input::placeholder { 
     color: #555555; 
     font-style: italic; 
     opacity: 1; 
-}
-
-/* Styled Schedule Checkbox Layout */
-.schedule-checkbox {
-    width: 18px !important;
-    height: 18px !important;
-    cursor: pointer;
-    accent-color: #ff1a1a; /* Forces modern browser checkmarks to match your red theme */
-    flex-shrink: 0;
-}
-
-/* Striking through text slightly when the row checkbox is checked */
-.cell-action-wrapper:has(.schedule-checkbox:checked) input.schedule-input {
-    text-decoration: line-through;
-    color: #555555 !important;
-    opacity: 0.6;
 }
 
 /* ==========================================================================
@@ -292,27 +208,20 @@ td input.schedule-input::placeholder {
     gap: 15px;
 }
 
-/* ==========================================================================
-   Message Rows Flex Layout System (Cross-Device Edge Alignment)
-   ========================================================================== */
 .chat-msg-row {
     display: flex !important;
     width: 100% !important;
-    flex-direction: row !important; /* Locks layout alignment horizontally */
     margin-bottom: 10px;
 }
 
-/* Your red messages go completely to the RIGHT hand side */
 .chat-msg-row.self {
     justify-content: flex-end !important;
 }
 
-/* Other peoples' gray messages go completely to the LEFT hand side */
 .chat-msg-row:not(.self) {
     justify-content: flex-start !important;
 }
 
-/* Layout container block housing the bubble + active reactions + menu drawer */
 .msg-container-block {
     display: flex !important;
     flex-direction: column !important;
@@ -320,7 +229,6 @@ td input.schedule-input::placeholder {
     width: auto !important;
 }
 
-/* Align internal text/meta elements securely to match outer container edges */
 .chat-msg-row.self .msg-container-block {
     align-items: flex-end !important;
 }
@@ -329,9 +237,6 @@ td input.schedule-input::placeholder {
     align-items: flex-start !important;
 }
 
-/* ==========================================================================
-   Chat Message Bubbles & Meta Details
-   ========================================================================== */
 .chat-msg-bubble {
     background-color: #262626;
     padding: 10px 14px;
@@ -348,7 +253,6 @@ td input.schedule-input::placeholder {
     background-color: #303030;
 }
 
-/* Red theme color for self messages */
 .chat-msg-bubble.self {
     background-color: #cc0000;
     border: none;
@@ -369,7 +273,6 @@ td input.schedule-input::placeholder {
     color: #ffb3b3;
 }
 
-/* Quoted Reply Formatting */
 .msg-reply-context {
     background-color: rgba(0, 0, 0, 0.25);
     border-left: 3px solid #ff1a1a;
@@ -460,7 +363,6 @@ td input.schedule-input::placeholder {
     border-color: #cc0000;
 }
 
-/* Static reaction rows */
 .msg-active-reactions-row {
     display: flex;
     flex-wrap: wrap;
@@ -538,6 +440,10 @@ td input.schedule-input::placeholder {
     gap: 10px;
 }
 
+.chat-input-area input {
+    flex-grow: 1;
+}
+
 .chat-input-area button {
     background-color: #ff1a1a;
     color: white;
@@ -573,7 +479,7 @@ td input.schedule-input::placeholder {
     }
     
     .chat-wrapper {
-        height: 78vh; /* Maximizes vertical room for chatting over keyboards */
+        height: 78vh; 
         width: 100%;
     }
     
@@ -583,11 +489,11 @@ td input.schedule-input::placeholder {
     }
     
     .msg-container-block {
-        max-width: 85% !important; /* Extends mobile message length room */
+        max-width: 85% !important;
     }
     
     table {
-        min-width: 650px; /* Elevated minimum width layout to adapt to dynamic columns safely */
+        min-width: 500px;
     }
     
     .chat-input-area {
