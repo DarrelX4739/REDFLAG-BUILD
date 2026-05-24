@@ -18,6 +18,7 @@ let isSignUpMode = false;
 let currentUserProfile = null;
 let activeReplyTargetKey = null; 
 let currentlyOpenMenuKey = null; // Track which message has an active context menu visible
+let currentActivityDbRef = null; // Track the Activity Matrix Firebase listener
 
 const AVAILABLE_EMOJIS = ['😊', '😡', '👍', '💀', '🔥', '😂', '👎', '❤️'];
 
@@ -36,6 +37,9 @@ auth.onAuthStateChanged((user) => {
     }
 });
 
+// ==========================================================================
+// SECURITY / AUTHENTICATION INTERFACES
+// ==========================================================================
 function handleAuth() {
     const email = document.getElementById('email-input').value.trim();
     const password = document.getElementById('password-input').value;
@@ -109,6 +113,9 @@ function hideForgotPassword() {
     document.getElementById('reset-msg').style.display = 'none';
 }
 
+// ==========================================================================
+// ENGINE CONTROLLER & TAB CONTROL VIEWS
+// ==========================================================================
 function switchView(targetView) {
     document.querySelectorAll('.dashboard-view').forEach(view => view.style.display = 'none');
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
@@ -116,6 +123,10 @@ function switchView(targetView) {
     if(targetView === 'schedule') {
         document.getElementById('view-schedule').style.display = 'block';
         document.getElementById('tab-schedule-btn').classList.add('active');
+    } else if (targetView === 'activity') {
+        document.getElementById('view-activity').style.display = 'block';
+        document.getElementById('tab-activity-btn').classList.add('active');
+        initActivityTracker();
     } else if (targetView === 'chat') {
         document.getElementById('view-chat').style.display = 'block';
         document.getElementById('tab-chat-btn').classList.add('active');
@@ -123,7 +134,9 @@ function switchView(targetView) {
     }
 }
 
-// System Schedule Sync Engine Logic
+// ==========================================================================
+// SYSTEM SCHEDULE SYNC ENGINE LOGIC
+// ==========================================================================
 const defaultData = {
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     headers: ['Morning', 'Recess', 'Lunch', 'Afternoon'],
@@ -405,7 +418,165 @@ function removeDay() {
     }
 }
 
-// Synchronized Team Messaging Engine
+// ==========================================================================
+// MECHANICAL AND DESIGN ACTIVITY PLANNER ENGINE
+// ==========================================================================
+function initActivityTracker() {
+    if (!currentActivityDbRef) {
+        currentActivityDbRef = db.ref('activity_planner');
+        
+        currentActivityDbRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            renderActivityUI(data);
+        });
+    }
+}
+
+function renderActivityUI(data) {
+    const container = document.getElementById('activity-container');
+    if (!container) return;
+    
+    container.innerHTML = '';
+
+    // Action Create Button Action
+    const addTableBtn = document.createElement('button');
+    addTableBtn.className = 'add-table-btn';
+    addTableBtn.innerText = '+ Create New Component Table';
+    addTableBtn.onclick = () => {
+        const newTableId = 'table_' + Date.now();
+        currentActivityDbRef.child(newTableId).set({
+            title: 'New Component Assembly Reference',
+            rows: {
+                'row_0': { trainee: '', task: '', notes: '', status: 'Not Started' }
+            }
+        });
+    };
+    container.appendChild(addTableBtn);
+
+    // If structure context is entirely empty populate defaults
+    if (!data) {
+        for (let i = 1; i <= 5; i++) {
+            const tempId = 'default_table_' + i;
+            currentActivityDbRef.child(tempId).set({
+                title: `Subsystem Block Group Component ${i}`,
+                rows: {
+                    'row_0': { trainee: '', task: '', notes: '', status: 'Not Started' }
+                }
+            });
+        }
+        return;
+    }
+
+    // Dynamic generation from real-time objects loop
+    Object.keys(data).forEach((tableId) => {
+        const tableData = data[tableId];
+        const card = document.createElement('div');
+        card.className = 'task-table-card';
+
+        const titleInput = document.createElement('input');
+        titleInput.type = 'text';
+        titleInput.className = 'table-header-input';
+        titleInput.value = tableData.title || '';
+        titleInput.placeholder = 'Enter Subsystem Assembly Element Name...';
+        titleInput.onchange = (e) => {
+            currentActivityDbRef.child(`${tableId}/title`).set(e.target.value);
+        };
+        card.appendChild(titleInput);
+
+        const table = document.createElement('table');
+        table.className = 'activity-matrix-table';
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th style="width: 25%;">Trainee Name</th>
+                    <th style="width: 35%;">Assigned Task / Mechanism</th>
+                    <th style="width: 20%;">Current Status</th>
+                    <th style="width: 20%;">Direct Mentorship Notes</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `;
+
+        const tbody = table.querySelector('tbody');
+
+        if (tableData.rows) {
+            Object.keys(tableData.rows).forEach((rowId) => {
+                const rowData = tableData.rows[rowId];
+                const tr = document.createElement('tr');
+
+                const tdTrainee = document.createElement('td');
+                tdTrainee.innerHTML = `<input type="text" class="matrix-input" value="${rowData.trainee || ''}" placeholder="Assign trainee...">`;
+                tdTrainee.querySelector('input').onchange = (e) => {
+                    currentActivityDbRef.child(`${tableId}/rows/${rowId}/trainee`).set(e.target.value);
+                };
+
+                const tdTask = document.createElement('td');
+                tdTask.innerHTML = `<input type="text" class="matrix-input" value="${rowData.task || ''}" placeholder="Describe mechanical task details...">`;
+                tdTask.querySelector('input').onchange = (e) => {
+                    currentActivityDbRef.child(`${tableId}/rows/${rowId}/task`).set(e.target.value);
+                };
+
+                const tdStatus = document.createElement('td');
+                const select = document.createElement('select');
+                select.className = 'status-dropdown';
+                
+                ['Not Started', 'In Progress', 'Completed', 'Stuck'].forEach(opt => {
+                    const el = document.createElement('option');
+                    el.value = opt;
+                    el.innerText = opt;
+                    if(opt === rowData.status) el.selected = true;
+                    select.appendChild(el);
+                });
+
+                updateDropdownStyle(select, rowData.status);
+
+                select.onchange = (e) => {
+                    updateDropdownStyle(select, e.target.value);
+                    currentActivityDbRef.child(`${tableId}/rows/${rowId}/status`).set(e.target.value);
+                };
+                tdStatus.appendChild(select);
+
+                const tdNotes = document.createElement('td');
+                tdNotes.innerHTML = `<input type="text" class="matrix-input" value="${rowData.notes || ''}" placeholder="Add mentor feedback...">`;
+                tdNotes.querySelector('input').onchange = (e) => {
+                    currentActivityDbRef.child(`${tableId}/rows/${rowId}/notes`).set(e.target.value);
+                };
+
+                tr.appendChild(tdTrainee);
+                tr.appendChild(tdTask);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdNotes);
+                tbody.appendChild(tr);
+            });
+        }
+
+        card.appendChild(table);
+
+        const addRowBtn = document.createElement('button');
+        addRowBtn.className = 'add-row-btn';
+        addRowBtn.innerText = '+ Add Trainee Row';
+        addRowBtn.onclick = () => {
+            const newRowId = 'row_' + Date.now();
+            currentActivityDbRef.child(`${tableId}/rows/${newRowId}`).set({
+                trainee: '', task: '', notes: '', status: 'Not Started'
+            });
+        };
+        card.appendChild(addRowBtn);
+        container.appendChild(card);
+    });
+}
+
+function updateDropdownStyle(element, status) {
+    element.className = 'status-dropdown';
+    if (status === 'Not Started') element.classList.add('status-not-started');
+    if (status === 'In Progress') element.classList.add('status-in-progress');
+    if (status === 'Completed') element.classList.add('status-completed');
+    if (status === 'Stuck') element.classList.add('status-stuck');
+}
+
+// ==========================================================================
+// SYNCHRONIZED TEAM MESSAGING ENGINE
+// ==========================================================================
 function initChat() {
     db.ref('chat_messages').limitToLast(60).on('value', (snapshot) => {
         renderChatFromSnapshot(snapshot.val());
