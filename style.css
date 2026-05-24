@@ -1,82 +1,187 @@
-:root {
-    --primary-color: #d32f2f;
-    --background-color: #f5f5f5;
-    --card-color: #ffffff;
-    --text-color: #333333;
+/* Global Reset & Base Theme */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: var(--background-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 20px;
+    background-color: #0d0d0d; /* Pitch black background */
+    color: #e5e5e5; /* Light gray text for readability */
 }
 
+/* Password Screen Container */
 #password-screen {
-    position: fixed;
-    top: 0; left: 0; width: 100%; height: 100%;
-    background-color: #1a1a1a;
-    display: flex; flex-direction: column;
-    justify-content: center; align-items: center;
-    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #0d0d0d;
 }
 
+/* Login Box */
 .login-box {
-    background: white; padding: 40px;
-    border-radius: 8px; text-align: center;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    background-color: #1a1a1a; /* Dark gray surface */
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #ff1a1a; /* Subtle sharp red border */
+    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15); /* Soft crimson glow */
+    text-align: center;
+    width: 100%;
+    max-width: 360px;
 }
 
-.login-box input {
-    width: 80%; padding: 10px; margin: 15px 0;
-    font-size: 16px; border: 1px solid #ccc;
-    border-radius: 4px; text-align: center;
+.login-box h2 {
+    color: #ff1a1a; /* Red title accent */
+    margin-bottom: 5px;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
 }
 
-.login-box button {
-    background-color: var(--primary-color);
-    color: white; border: none; padding: 10px 20px;
-    font-size: 16px; border-radius: 4px; cursor: pointer;
+.login-box p {
+    color: #8c8c8c;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
 }
 
-#main-content {
-    display: none;
+/* Input Fields */
+input[type="password"], input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    background-color: #262626; /* Dark input background */
+    border: 1px solid #404040;
+    border-radius: 4px;
+    color: #ffffff;
+    font-size: 1rem;
+    text-align: center;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input[type="password"]:focus, input[type="text"]:focus {
+    border-color: #ff1a1a; /* Border turns red on focus */
+}
+
+/* Main UI & Typography Settings */
+.main-title {
+    text-align: center;
+    margin: 30px 0;
+    color: #ff1a1a; /* Red header accent */
+    letter-spacing: 1px;
+}
+
+#schedule-container {
+    padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
-.main-title {
-    color: var(--primary-color);
-    text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-}
-
 .day-section {
-    background: var(--card-color);
-    padding: 20px; border-radius: 8px;
-    margin-bottom: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    background-color: #161616; /* Clean dark background panel */
+    border-left: 4px solid #ff1a1a; /* Left red accent bar */
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 .day-title {
-    color: #2c3e50;
-    border-bottom: 2px solid var(--primary-color);
-    padding-bottom: 8px;
+    color: #ffffff;
+    font-size: 1.25rem;
+    margin-bottom: 15px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Controls & Buttons Grid Layout */
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+/* Custom Styled Buttons */
+.btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+/* Unlock and Add Actions (Solid Red Accent) */
+.login-box button, .btn-add {
+    background-color: #ff1a1a;
+    color: #ffffff;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.btn-add {
+    width: auto;
     margin-top: 0;
 }
 
-.table-container { overflow-x: auto; margin-top: 15px; }
-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-th, td { border: 1px solid #ddd; padding: 12px; text-align: left; min-width: 120px; }
-th { background-color: #f8f9fa; }
-td input { width: 100%; border: none; background: transparent; font-size: 14px; outline: none; }
-td input:focus { background: #fffde7; }
+.login-box button:hover, .btn-add:hover {
+    background-color: #cc0000; /* Darker red on hover */
+}
 
-.controls { margin-bottom: 10px; display: flex; gap: 10px; flex-wrap: wrap; }
-button.btn { padding: 6px 12px; border: 1px solid #ccc; background: #fff; border-radius: 4px; cursor: pointer; font-size: 12px; }
-button.btn:hover { background-color: #eee; }
-button.btn-add { border-color: #2e7d32; color: #2e7d32; }
-button.btn-add:hover { background-color: #e8f5e9; }
-button.btn-del { border-color: #c62828; color: #c62828; }
-button.btn-del:hover { background-color: #ffebee; }
+/* Delete / Remove Actions (Subtle Outlined Dark Red Theme) */
+.btn-del {
+    background-color: transparent;
+    color: #ff4d4d;
+    border: 1px solid #cc0000;
+}
+
+.btn-del:hover {
+    background-color: #cc0000;
+    color: #ffffff;
+}
+
+/* Data Tables Layout Structure */
+.table-container {
+    width: 100%;
+    overflow-x: auto;
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #1f1f1f;
+}
+
+th {
+    background-color: #2d2d2d;
+    color: #ff1a1a; /* Table headers highlighted in red */
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 0.5px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid #333333;
+}
+
+td {
+    padding: 6px;
+    border: 1px solid #333333;
+}
+
+/* Schedule Table Input Modifications */
+td input {
+    width: 100%;
+    background-color: transparent !important;
+    border: none !important;
+    color: #ffffff !important;
+    text-align: left !important;
+    padding: 6px !important;
+}
+
+td input:focus {
+    background-color: #2a2a2a !important; /* Slightly lights up row cells being edited */
+}
