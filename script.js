@@ -216,21 +216,31 @@ function renderSchedule() {
         container.appendChild(daySection);
     });
 
-    // Create and append the global "Add Day" button at the bottom
-    const addDayBtnContainer = document.createElement('div');
-    addDayBtnContainer.style.textAlign = 'center';
-    addDayBtnContainer.style.marginTop = '10px';
-    addDayBtnContainer.style.paddingBottom = '30px';
+    // Bottom Global Day Control Actions Wrapper Bar
+    const globalDayControls = document.createElement('div');
+    globalDayControls.style.display = 'flex';
+    globalDayControls.style.justifyContent = 'center';
+    globalDayControls.style.gap = '15px';
+    globalDayControls.style.marginTop = '15px';
+    globalDayControls.style.paddingBottom = '40px';
 
     const addDayBtn = document.createElement('button');
     addDayBtn.className = 'btn btn-add';
-    addDayBtn.style.padding = '12px 30px';
-    addDayBtn.style.fontSize = '1.05rem';
+    addDayBtn.style.padding = '12px 25px';
+    addDayBtn.style.fontSize = '1rem';
     addDayBtn.innerHTML = '➕ Add New Day';
     addDayBtn.onclick = addDay;
 
-    addDayBtnContainer.appendChild(addDayBtn);
-    container.appendChild(addDayBtnContainer);
+    const removeDayBtn = document.createElement('button');
+    removeDayBtn.className = 'btn btn-del';
+    removeDayBtn.style.padding = '12px 25px';
+    removeDayBtn.style.fontSize = '1rem';
+    removeDayBtn.innerHTML = '🗑️ Remove Last Day';
+    removeDayBtn.onclick = removeDay;
+
+    globalDayControls.appendChild(addDayBtn);
+    globalDayControls.appendChild(removeDayBtn);
+    container.appendChild(globalDayControls);
 }
 
 function addRow(day) {
@@ -247,6 +257,7 @@ function deleteRow(day) {
     }
 }
 
+// Columns Control Logic System
 function addColumn() {
     const colName = prompt("Enter column name:");
     if (colName) {
@@ -258,6 +269,7 @@ function addColumn() {
     }
 }
 
+// Global Remove Tables Sequence Core Engine Logic
 function deleteColumn() {
     if (appData.headers.length > 1) {
         appData.headers.pop();
@@ -270,50 +282,77 @@ function deleteColumn() {
 
 function addDay() {
     const sequence = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-    let nextDayName = 'Monday'; // Default fallback
+    let nextDayName = 'Monday';
     
     if (appData.days && appData.days.length > 0) {
-        // Get the very last day currently on the screen
         const lastDayFull = appData.days[appData.days.length - 1];
         
-        // Extract just the word (ignores numbers, e.g., gets "Monday" from "Monday 2")
+        // Isolate base string component word (e.g., "Monday") and numeric value
         const baseDayMatch = lastDayFull.match(/[A-Za-z]+/);
         const lastBaseDay = baseDayMatch ? baseDayMatch[0] : 'Friday';
         
-        // Find where we are in the Mon-Fri sequence
+        const numMatch = lastDayFull.match(/\d+/);
+        let lastDayWeekNum = numMatch ? parseInt(numMatch[0], 10) : 1;
+        
         const currentIndex = sequence.indexOf(lastBaseDay);
+        let nextIndex = currentIndex + 1;
         
-        // Move to the next day, wrapping back to Monday if the last day was Friday
-        const nextIndex = currentIndex !== -1 ? (currentIndex + 1) % sequence.length : 0;
-        let targetBaseDay = sequence[nextIndex];
+        // Loop week sequences forward automatically if boundary hit
+        if (nextIndex >= sequence.length) {
+            nextIndex = 0;
+            lastDayWeekNum += 1;
+        }
         
-        // Ensure a unique name to prevent Firebase from overwriting previous tables
-        nextDayName = targetBaseDay;
-        let counter = 2;
+        const targetBaseDay = sequence[nextIndex];
+        nextDayName = lastDayWeekNum > 1 ? `${targetBaseDay} ${lastDayWeekNum}` : targetBaseDay;
+        
+        // Safety validation fallback to eliminate structural collision paths
+        let safetyCounter = lastDayWeekNum;
         while (appData.days.includes(nextDayName)) {
-            nextDayName = `${targetBaseDay} ${counter}`;
-            counter++;
+            safetyCounter++;
+            nextDayName = `${targetBaseDay} ${safetyCounter}`;
         }
     } else {
-        // Failsafe if all days were deleted
         appData.days = [];
     }
 
-    // Initialize the new day with empty rows matching current column headers
     const initialRows = [
         new Array(appData.headers.length).fill(''),
         new Array(appData.headers.length).fill(''),
         new Array(appData.headers.length).fill('')
     ];
 
-    // Push to local memory
     appData.days.push(nextDayName);
     if (!appData.values) appData.values = {};
     appData.values[nextDayName] = initialRows;
 
-    // Sync to Cloud and update UI
     saveToCloud();
     renderSchedule();
+}
+
+function removeDay() {
+    if (!appData.days || appData.days.length <= 1) {
+        alert("Action canceled: You must retain at least one day section template.");
+        return;
+    }
+    
+    const targetDayToRemove = appData.days[appData.days.length - 1];
+    if (confirm(`Are you sure you want to permanently delete "${targetDayToRemove}"?`)) {
+        // Pop day name tracker block mapping link out of system core array
+        appData.days.pop();
+        
+        // Wipe local database structure out to prevent deep-nested orphans memory leak
+        if (appData.values && appData.values[targetDayToRemove]) {
+            delete appData.values[targetDayToRemove];
+        }
+        
+        // Force sync updates globally to active cloud runtime engines
+        if (db) {
+            db.ref('shared_schedule/days').set(appData.days);
+            db.ref(`shared_schedule/values/${targetDayToRemove}`).remove();
+        }
+        renderSchedule();
+    }
 }
 
 // Synchronized Team Messaging Engine
@@ -479,6 +518,7 @@ function cancelReply() {
     document.getElementById('reply-preview-bar').style.display = 'none';
 }
 
+// Messaging Transmit Channels Data Pipeline System
 function sendChatMessage() {
     const inputField = document.getElementById('chat-msg-input');
     const msgText = inputField.value.trim();
