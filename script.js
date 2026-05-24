@@ -196,6 +196,7 @@ function renderSchedule() {
                 const td = document.createElement('td');
                 const input = document.createElement('input');
                 input.type = 'text';
+                input.className = 'schedule-input';
                 input.value = rowData[cIdx] || '';
                 input.placeholder = 'Insert Task';
                 
@@ -251,153 +252,154 @@ function deleteColumn() {
     }
 }
 
-// Synchronized Team Messaging Engine (With Tap-to-Open Action Drawers)
+// Synchronized Team Messaging Engine
 function initChat() {
     db.ref('chat_messages').limitToLast(60).on('value', (snapshot) => {
-        const msgsBox = document.getElementById('chat-messages-box');
-        if(!msgsBox) return;
+        renderChatFromSnapshot(snapshot.val());
+    });
+}
+
+function renderChatFromSnapshot(data) {
+    const msgsBox = document.getElementById('chat-messages-box');
+    if(!msgsBox) return;
+    
+    const isAtBottom = msgsBox.scrollHeight - msgsBox.scrollTop <= msgsBox.clientHeight + 150;
+    msgsBox.innerHTML = '';
+    if(!data) return;
+
+    Object.keys(data).forEach(key => {
+        const msgObj = data[key];
+        const isSelf = msgObj.uid === currentUserProfile.uid;
         
-        // Save scroll placement to prevent jarring jumps unless at bottom
-        const isAtBottom = msgsBox.scrollHeight - msgsBox.scrollTop <= msgsBox.clientHeight + 150;
+        const messageRow = document.createElement('div');
+        messageRow.className = `chat-msg-row ${isSelf ? 'self' : ''}`;
+
+        const containerBlock = document.createElement('div');
+        containerBlock.className = 'msg-container-block';
+
+        const bubble = document.createElement('div');
+        bubble.className = `chat-msg-bubble ${isSelf ? 'self' : ''}`;
         
-        msgsBox.innerHTML = '';
-        const data = snapshot.val();
-        if(!data) return;
+        const senderDisplayName = msgObj.senderName || msgObj.sender || 'Anonymous User';
+        let htmlContent = `<div class="msg-meta">${isSelf ? 'You' : senderDisplayName}</div>`;
+        
+        if (msgObj.replyTo) {
+            htmlContent += `
+                <div class="msg-reply-context">
+                    ↪️ Replying to <b>${msgObj.replyTo.user}</b>: "${escapeHTML(msgObj.replyTo.text)}"
+                </div>
+            `;
+        }
+        
+        htmlContent += `<div class="msg-body">${escapeHTML(msgObj.text)}</div>`;
+        bubble.innerHTML = htmlContent;
 
-        Object.keys(data).forEach(key => {
-            const msgObj = data[key];
-            const isSelf = msgObj.uid === currentUserProfile.uid;
+        bubble.onclick = (e) => {
+            e.stopPropagation();
+            toggleMessageActionMenu(key);
+        };
+
+        containerBlock.appendChild(bubble);
+
+        if (msgObj.reactions) {
+            const activeReactionsRow = document.createElement('div');
+            activeReactionsRow.className = 'msg-active-reactions-row';
             
-            const messageRow = document.createElement('div');
-            messageRow.className = `chat-msg-row ${isSelf ? 'self' : ''}`;
-
-            const containerBlock = document.createElement('div');
-            containerBlock.className = 'msg-container-block';
-
-            // Message Bubble Element
-            const bubble = document.createElement('div');
-            bubble.className = `chat-msg-bubble ${isSelf ? 'self' : ''}`;
-            
-            const senderDisplayName = msgObj.senderName || msgObj.sender || 'Anonymous User';
-            let htmlContent = `<div class="msg-meta">${isSelf ? 'You' : senderDisplayName}</div>`;
-            
-            if (msgObj.replyTo) {
-                htmlContent += `
-                    <div class="msg-reply-context">
-                        ↪️ Replying to <b>${msgObj.replyTo.user}</b>: "${escapeHTML(msgObj.replyTo.text)}"
-                    </div>
-                `;
-            }
-            
-            htmlContent += `<div class="msg-body">${escapeHTML(msgObj.text)}</div>`;
-            bubble.innerHTML = htmlContent;
-
-            // TOGGLE ACTION ENGINE: Clicking the message opens/closes its specific menu drawer
-            bubble.onclick = (e) => {
-                e.stopPropagation(); // Stop global background clicks from executing immediately
-                toggleMessageActionMenu(key);
-            };
-
-            containerBlock.appendChild(bubble);
-
-            // Construct Active Reaction Badges (Visible underneath bubble)
-            if (msgObj.reactions) {
-                const activeReactionsRow = document.createElement('div');
-                activeReactionsRow.className = 'msg-active-reactions-row';
+            Object.keys(msgObj.reactions).forEach(emoji => {
+                const clickUsersList = msgObj.reactions[emoji] || {};
+                const reactionCount = Object.keys(clickUsersList).length;
                 
-                Object.keys(msgObj.reactions).forEach(emoji => {
-                    const clickUsersList = msgObj.reactions[emoji] || {};
-                    const reactionCount = Object.keys(clickUsersList).length;
-                    
-                    if (reactionCount > 0) {
-                        const hasCurrentUserReacted = clickUsersList[currentUserProfile.uid] === true;
-                        const pill = document.createElement('div');
-                        pill.className = `reaction-counter-pill ${hasCurrentUserReacted ? 'user-active' : ''}`;
-                        pill.innerHTML = `<span>${emoji}</span> <span>${reactionCount}</span>`;
-                        pill.onclick = (e) => {
-                            e.stopPropagation(); // Avoid opening the main panel when tapping a small pill
-                            toggleEmojiReaction(key, emoji);
-                        };
-                        activeReactionsRow.appendChild(pill);
-                    }
-                });
-                containerBlock.appendChild(activeReactionsRow);
-            }
-
-            // DYNAMIC MENU DRAWER CONTAINER: Appears dynamically when active key matches
-            if (currentlyOpenMenuKey === key) {
-                const menuDrawer = document.createElement('div');
-                menuDrawer.className = 'msg-action-menu-drawer';
-                menuDrawer.onclick = (e) => e.stopPropagation(); // Keep panel interaction live
-
-                // 1. Emoji Selection Row
-                const emojiRow = document.createElement('div');
-                emojiRow.className = 'drawer-emoji-row';
-                AVAILABLE_EMOJIS.forEach(emoji => {
-                    const emoBtn = document.createElement('button');
-                    emoBtn.className = 'drawer-emoji-btn';
-                    emoBtn.innerText = emoji;
-                    emoBtn.onclick = () => {
+                if (reactionCount > 0) {
+                    const hasCurrentUserReacted = clickUsersList[currentUserProfile.uid] === true;
+                    const pill = document.createElement('div');
+                    pill.className = `reaction-counter-pill ${hasCurrentUserReacted ? 'user-active' : ''}`;
+                    pill.innerHTML = `<span>${emoji}</span> <span>${reactionCount}</span>`;
+                    pill.onclick = (e) => {
+                        e.stopPropagation();
                         toggleEmojiReaction(key, emoji);
-                        closeAllContextMenus(); // Close drawer once selected
                     };
-                    emojiRow.appendChild(emoBtn);
-                });
-                menuDrawer.appendChild(emojiRow);
+                    activeReactionsRow.appendChild(pill);
+                }
+            });
+            containerBlock.appendChild(activeReactionsRow);
+        }
 
-                // 2. Reply & Delete Actions Buttons Row
-                const buttonsRow = document.createElement('div');
-                buttonsRow.className = 'drawer-buttons-row';
+        if (currentlyOpenMenuKey === key) {
+            const menuDrawer = document.createElement('div');
+            menuDrawer.className = 'msg-action-menu-drawer';
+            menuDrawer.onclick = (e) => e.stopPropagation();
 
-                const replyBtn = document.createElement('button');
-                replyBtn.className = 'drawer-action-btn';
-                replyBtn.innerText = '💬 Reply';
-                replyBtn.onclick = () => {
-                    setReplyTarget(key, senderDisplayName, msgObj.text);
+            const emojiRow = document.createElement('div');
+            emojiRow.className = 'drawer-emoji-row';
+            AVAILABLE_EMOJIS.forEach(emoji => {
+                const emoBtn = document.createElement('button');
+                const emoBtnClass = 'drawer-emoji-btn';
+                emoBtn.className = emoBtnClass;
+                emoBtn.innerText = emoji;
+                emoBtn.onclick = () => {
+                    toggleEmojiReaction(key, emoji);
                     closeAllContextMenus();
                 };
-                buttonsRow.appendChild(replyBtn);
+                emojiRow.appendChild(emoBtn);
+            });
+            menuDrawer.appendChild(emojiRow);
 
-                if (isSelf) {
-                    const deleteBtn = document.createElement('button');
-                    deleteBtn.className = 'drawer-action-btn delete-btn-style';
-                    deleteBtn.innerText = '🗑️ Delete';
-                    deleteBtn.onclick = () => {
-                        deleteChatMessage(key);
-                        closeAllContextMenus();
-                    };
-                    buttonsRow.appendChild(deleteBtn);
-                }
+            const buttonsRow = document.createElement('div');
+            buttonsRow.className = 'drawer-buttons-row';
 
-                menuDrawer.appendChild(buttonsRow);
-                containerBlock.appendChild(menuDrawer);
+            const replyBtn = document.createElement('button');
+            replyBtn.className = 'drawer-action-btn';
+            replyBtn.innerText = '💬 Reply';
+            replyBtn.onclick = () => {
+                setReplyTarget(key, senderDisplayName, msgObj.text);
+                closeAllContextMenus();
+            };
+            buttonsRow.appendChild(replyBtn);
+
+            if (isSelf) {
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'drawer-action-btn delete-btn-style';
+                deleteBtn.innerText = '🗑️ Delete';
+                deleteBtn.onclick = () => {
+                    deleteChatMessage(key);
+                    closeAllContextMenus();
+                };
+                buttonsRow.appendChild(deleteBtn);
             }
 
-            messageRow.appendChild(containerBlock);
-            msgsBox.appendChild(messageRow);
-        });
+            menuDrawer.appendChild(buttonsRow);
+            containerBlock.appendChild(menuDrawer);
+        }
 
-        if (isAtBottom) scrollToBottomChat();
+        messageRow.appendChild(containerBlock);
+        msgsBox.appendChild(messageRow);
     });
+
+    if (isAtBottom) scrollToBottomChat();
 }
 
 function toggleMessageActionMenu(messageKey) {
     if (currentlyOpenMenuKey === messageKey) {
-        currentlyOpenMenuKey = null; // Close if clicked again
+        currentlyOpenMenuKey = null;
     } else {
-        currentlyOpenMenuKey = messageKey; // Set open target drawer
+        currentlyOpenMenuKey = messageKey;
     }
-    // Re-render local chat layout array nodes cleanly to reflect UI adjustments instantly
-    db.ref('chat_messages').off('value');
-    initChat();
+    syncRenderCurrentChatUI();
 }
 
 function closeAllContextMenus() {
     if (currentlyOpenMenuKey !== null) {
         currentlyOpenMenuKey = null;
-        db.ref('chat_messages').off('value');
-        initChat();
+        syncRenderCurrentChatUI();
     }
+}
+
+function syncRenderCurrentChatUI() {
+    db.ref('chat_messages').once('value', (snapshot) => {
+        if (snapshot.exists()) {
+            renderChatFromSnapshot(snapshot.val());
+        }
+    });
 }
 
 function setReplyTarget(messageKey, user, text) {
@@ -461,14 +463,12 @@ function deleteChatMessage(messageKey) {
 
 // Global Application Core Bindings
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Listen for standard Enter click actions inside the text input
     document.body.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && document.activeElement.id === 'chat-msg-input') {
             sendChatMessage();
         }
     });
 
-    // 2. Dynamic Global Listener: Clicking anywhere else on the screen immediately wipes context boxes
     document.addEventListener('click', () => {
         closeAllContextMenus();
     });
