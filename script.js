@@ -251,7 +251,7 @@ function deleteColumn() {
     }
 }
 
-// Synchronized Team Messaging Engine (Standard Instant Click Actions)
+// Synchronized Team Messaging Engine (Clean Clicks & structural side assignment)
 function initChat() {
     db.ref('chat_messages').limitToLast(60).on('value', (snapshot) => {
         const msgsBox = document.getElementById('chat-messages-box');
@@ -268,10 +268,11 @@ function initChat() {
             const isSelf = msgObj.uid === currentUserProfile.uid;
             
             const messageRow = document.createElement('div');
-            messageRow.className = `chat-msg-row ${isSelf ? 'self' : ''}`;
+            messageRow.className = 'chat-msg-row';
 
             const containerBlock = document.createElement('div');
-            containerBlock.className = 'msg-container-block';
+            // Explicit assignment: self messages go left, other messages go right
+            containerBlock.className = `msg-container-block ${isSelf ? 'msg-left' : 'msg-right'}`;
 
             // Message Bubble Element
             const bubble = document.createElement('div');
@@ -291,7 +292,7 @@ function initChat() {
             htmlContent += `<div class="msg-body">${escapeHTML(msgObj.text)}</div>`;
             bubble.innerHTML = htmlContent;
 
-            // Simple standard tap/click interaction
+            // Standard clean click / tap action handler
             bubble.onclick = (e) => {
                 e.stopPropagation(); 
                 toggleMessageActionMenu(key);
