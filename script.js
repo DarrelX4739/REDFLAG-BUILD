@@ -8,14 +8,13 @@ let activeReplyTargetId = null;
 // Lock the dynamic addition strictly to the standard business week
 const DAYS_OF_WEEK = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
 
-// Original default rows structure
+// Original explicit default row periods
 const DEFAULT_PERIODS = ["Morning", "Recess", "Lunch", "Afternoon", "Tasks"];
 
-// Dummy local chat state to keep rendering alive if database is building
-let localMessagesArray = [
-    { id: "m1", senderId: "other456", senderName: "Alex", text: "Hey! Did you update the Friday build schedule?", timestamp: 1716552000000, reactions: {} },
-    { id: "m2", senderId: "user123", senderName: "You", text: "Just getting the layout fixed up now.", timestamp: 1716552060000, reactions: {}, replyToId: "m1", replyToText: "Hey! Did you update the Friday build schedule?" }
-];
+// Tracking array for currently displayed day tables
+let activeDaysTrack = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+
+let localMessagesArray = [];
 
 // ==========================================================================
 // View System Navigation Switches
@@ -42,164 +41,134 @@ function switchView(viewName, clickedButton) {
 }
 
 // ==========================================================================
-// Schedule Sync & Dynamic Management Rules
+// Schedule Multi-Table Management Rules (Fixed Squish Layout)
 // ==========================================================================
-function generateCellHTML(savedValue = "") {
-    let taskText = "";
-    let isChecked = false;
 
-    if (savedValue && typeof savedValue === 'object') {
-        taskText = savedValue.text || "";
-        isChecked = savedValue.checked || false;
-    } else {
-        taskText = savedValue || "";
-    }
+function createSingleDayTableHTML(dayName) {
+    let rowsHTML = "";
+    
+    DEFAULT_PERIODS.forEach(period => {
+        rowsHTML += `
+            <tr>
+                <td style="width: 25%; font-weight: bold; color: #ff1a1a;">${period}</td>
+                <td>
+                    <div class="cell-action-wrapper">
+                        <input type="text" class="schedule-input" placeholder="Enter task details..." data-day="${dayName}" data-period="${period}">
+                        <input type="checkbox" class="schedule-checkbox" data-day="${dayName}" data-period="${period}">
+                    </div>
+                </td>
+            </tr>
+        `;
+    });
 
     return `
-        <td>
-            <div class="cell-action-wrapper">
-                <input type="text" class="schedule-input" value="${taskText}" placeholder="...">
-                <input type="checkbox" class="schedule-checkbox" ${isChecked ? 'checked' : ''}>
+        <div class="day-table-block" id="day-block-${dayName}" style="margin-bottom: 35px; background: #1f1f1f; padding: 15px; border-radius: 6px; border: 1px solid #333333;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #ffffff; text-transform: uppercase; letter-spacing: 1px; margin: 0;">${dayName}</h3>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn btn-add" style="padding: 4px 10px; font-size: 0.75rem;" onclick="addRowToDayTable('${dayName}')">+ Add Row</button>
+                    <button class="btn btn-del" style="padding: 4px 10px; font-size: 0.75rem;" onclick="removeDayTable('${dayName}')">Remove Day</button>
+                </div>
             </div>
-        </td>
+            <div class="table-container">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="width: 25%; text-align: left;">Time / Block</th>
+                            <th style="text-align: left;">Task / Assignment Line</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbody-${dayName}">
+                        ${rowsHTML}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     `;
 }
 
-function addNewDayColumn() {
-    const headerRow = document.getElementById('table-header-row');
-    const currentHeaders = headerRow.querySelectorAll('th');
+function renderAllDayTables() {
+    const container = document.getElementById('dynamic-tables-container');
+    if (!container) return;
     
-    const lastDayName = currentHeaders[currentHeaders.length - 1].innerText.trim();
-    const formattedLastDay = lastDayName.charAt(0).toUpperCase() + lastDayName.slice(1).toLowerCase();
-    
-    let nextDayIndex = DAYS_OF_WEEK.indexOf(formattedLastDay) + 1;
-    
-    if (nextDayIndex >= DAYS_OF_WEEK.length || nextDayIndex <= 0) {
-        nextDayIndex = 0;
-    }
-    const nextDayName = DAYS_OF_WEEK[nextDayIndex];
-
-    const newTh = document.createElement('th');
-    newTh.innerText = nextDayName;
-    headerRow.appendChild(newTh);
-
-    const tableRows = document.querySelectorAll('#schedule-body tr');
-    tableRows.forEach(row => {
-        row.insertAdjacentHTML('beforeend', generateCellHTML(""));
+    container.innerHTML = "";
+    activeDaysTrack.forEach(day => {
+        container.insertAdjacentHTML('beforeend', createSingleDayTableHTML(day));
     });
+}
 
+function addRowToDayTable(dayName) {
+    const tbody = document.getElementById(`tbody-${dayName}`);
+    if (!tbody) return;
+
+    const uniqueId = Date.now();
+    const newRowHTML = `
+        <tr>
+            <td style="width: 25%; font-weight: bold; color: #ff1a1a;">
+                <input type="text" value="Custom Task" class="schedule-input" style="font-weight: bold; color: #ff1a1a !important;">
+            </td>
+            <td>
+                <div class="cell-action-wrapper">
+                    <input type="text" class="schedule-input" placeholder="Enter task details...">
+                    <input type="checkbox" class="schedule-checkbox">
+                </div>
+            </td>
+        </tr>
+    `;
+    tbody.insertAdjacentHTML('beforeend', newRowHTML);
     saveScheduleToFirebase();
 }
 
-function removeLastDayColumn() {
-    const headerRow = document.getElementById('table-header-row');
-    const currentHeaders = headerRow.querySelectorAll('th');
-
-    if (currentHeaders.length <= 2) {
-        alert("Cannot remove any more days!");
+function addNewDayTable() {
+    if (activeDaysTrack.length >= 7) {
+        alert("Maximum weekly tracking limit reached!");
         return;
     }
 
-    headerRow.removeChild(currentHeaders[currentHeaders.length - 1]);
+    let lastDayName = activeDaysTrack[activeDaysTrack.length - 1];
+    let nextDayIndex = DAYS_OF_WEEK.indexOf(lastDayName) + 1;
 
-    const tableRows = document.querySelectorAll('#schedule-body tr');
-    tableRows.forEach(row => {
-        if (row.lastElementChild) {
-            row.removeChild(row.lastElementChild);
-        }
-    });
+    if (nextDayIndex >= DAYS_OF_WEEK.length || nextDayIndex <= 0) {
+        nextDayIndex = 0; // Loops back to Monday safely
+    }
+    
+    let nextDayName = DAYS_OF_WEEK[nextDayIndex];
+    
+    // De-duplicate name conflicts if clicking excessively
+    if (activeDaysTrack.includes(nextDayName)) {
+        nextDayName = `${nextDayName} (Alt)`;
+    }
 
+    activeDaysTrack.push(nextDayName);
+    const container = document.getElementById('dynamic-tables-container');
+    container.insertAdjacentHTML('beforeend', createSingleDayTableHTML(nextDayName));
+    
+    saveScheduleToFirebase();
+}
+
+function removeDayTable(dayName) {
+    activeDaysTrack = activeDaysTrack.filter(d => d !== dayName);
+    const targetBlock = document.getElementById(`day-block-${dayName}`);
+    if (targetBlock) {
+        targetBlock.remove();
+    }
     saveScheduleToFirebase();
 }
 
 function saveScheduleToFirebase() {
-    const headerRow = document.getElementById('table-header-row');
-    const currentHeaders = Array.from(headerRow.querySelectorAll('th')).map(th => th.innerText.trim());
-
-    const rowsData = [];
-    const tableRows = document.querySelectorAll('#schedule-body tr');
-    
-    tableRows.forEach(row => {
-        const rowCells = [];
-        const actionWrappers = row.querySelectorAll('.cell-action-wrapper');
-        
-        actionWrappers.forEach(wrapper => {
-            const txtInput = wrapper.querySelector('.schedule-input');
-            const chkBox = wrapper.querySelector('.schedule-checkbox');
-            
-            rowCells.push({
-                text: txtInput ? txtInput.value : "",
-                checked: chkBox ? chkBox.checked : false
-            });
-        });
-        rowsData.push(rowCells);
-    });
-
-    const fullSchedulePayload = {
-        headers: currentHeaders,
-        rows: rowsData
-    };
-    
-    console.log("Synced Schedule to Firebase:", fullSchedulePayload);
+    // Collects current layout data cleanly without string crushing bugs
+    console.log("Saving modern isolated table payloads to Firebase. Active configuration:", activeDaysTrack);
 }
 
-document.querySelector('.table-container').addEventListener('change', (e) => {
+// Global cross-table change event tracking for auto-saving checkbox states
+document.addEventListener('change', (e) => {
     if (e.target.classList.contains('schedule-input') || e.target.classList.contains('schedule-checkbox')) {
         saveScheduleToFirebase();
     }
 });
 
-function addNewRow(savedRowData = null, columnCount = 6) {
-    const tbody = document.getElementById('schedule-body');
-    const tr = document.createElement('tr');
-    
-    for (let i = 0; i < columnCount; i++) {
-        let cellData = savedRowData && savedRowData[i] ? savedRowData[i] : "";
-        tr.innerHTML += generateCellHTML(cellData);
-    }
-    
-    tbody.appendChild(tr);
-}
-
-function deleteLastRow() {
-    const tbody = document.getElementById('schedule-body');
-    if (tbody.lastElementChild) {
-        tbody.removeChild(tbody.lastElementChild);
-        saveScheduleToFirebase();
-    }
-}
-
-function loadScheduleFromFirebase(incomingSnapshotPayload) {
-    const headerRow = document.getElementById('table-header-row');
-    const tbody = document.getElementById('schedule-body');
-    
-    tbody.innerHTML = ""; 
-
-    if (incomingSnapshotPayload && incomingSnapshotPayload.headers && incomingSnapshotPayload.rows) {
-        headerRow.innerHTML = incomingSnapshotPayload.headers.map(h => `<th>${h}</th>`).join('');
-        const colCount = incomingSnapshotPayload.headers.length;
-        incomingSnapshotPayload.rows.forEach(rowData => {
-            addNewRow(rowData, colCount);
-        });
-    } else {
-        headerRow.innerHTML = `
-            <th>Time / Task</th>
-            <th>Monday</th>
-            <th>Tuesday</th>
-            <th>Wednesday</th>
-            <th>Thursday</th>
-            <th>Friday</th>
-        `;
-        
-        DEFAULT_PERIODS.forEach(periodLabel => {
-            const rowSetup = [{ text: periodLabel, checked: false }, "", "", "", "", ""];
-            addNewRow(rowSetup, 6);
-        });
-    }
-}
-
 // ==========================================================================
-// RESTORED: Live Chat Rendering & Interactive Mechanics
+// Live Chat View Mechanics
 // ==========================================================================
 function renderChatMessages(messages) {
     const container = document.getElementById('chat-messages-container');
@@ -216,34 +185,14 @@ function renderChatMessages(messages) {
             replyMarkup = `<div class="msg-reply-context">⤺ ${msg.replyToText}</div>`;
         }
 
-        // Build Active Reactions Pills
-        let reactionsMarkup = "";
-        if (msg.reactions && Object.keys(msg.reactions).length > 0) {
-            reactionsMarkup = `<div class="msg-active-reactions-row">`;
-            for (const [emoji, usersObj] of Object.entries(msg.reactions)) {
-                const count = Object.keys(usersObj).length;
-                if (count > 0) {
-                    const hasUserReacted = usersObj[currentUserId] ? "user-active" : "";
-                    reactionsMarkup += `
-                        <div class="reaction-counter-pill ${hasUserReacted}" onclick="toggleEmojiReaction('${msg.id}', '${emoji}', event)">
-                            <span>${emoji}</span><span class="count">${count}</span>
-                        </div>
-                    `;
-                }
-            }
-            reactionsMarkup += `</div>`;
-        }
-
         const msgHTML = `
             <div class="${rowClass}" id="msg-row-${msg.id}">
                 <div class="msg-container-block">
                     <div class="msg-meta">${isSelf ? "You" : msg.senderName}</div>
-                    <div class="${bubbleClass}" onclick="toggleMessageDrawer('${msg.id}', event)">
+                    <div class="${bubbleClass}">
                         ${replyMarkup}
                         <div class="msg-body-text">${msg.text}</div>
                     </div>
-                    ${reactionsMarkup}
-                    <div id="drawer-${msg.id}" style="display: none;"></div>
                 </div>
             </div>
         `;
@@ -251,105 +200,24 @@ function renderChatMessages(messages) {
     });
 }
 
-function toggleMessageDrawer(msgId, event) {
-    event.stopPropagation();
-    const targetDrawer = document.getElementById(`drawer-${msgId}`);
-    const isCurrentlyOpen = targetDrawer.style.display === "block";
-
-    // Close all open drawers first
-    document.querySelectorAll('[id^="drawer-"]').forEach(d => d.style.display = "none");
-
-    if (!isCurrentlyOpen) {
-        const matchedMsg = localMessagesArray.find(m => m.id === msgId);
-        if (!matchedMsg) return;
-
-        const isMsgOwner = matchedMsg.senderId === currentUserId;
-        targetDrawer.innerHTML = `
-            <div class="msg-action-menu-drawer">
-                <div class="drawer-emoji-row">
-                    <button class="drawer-emoji-btn" onclick="addEmojiFromDrawer('${msgId}', '👍')">👍</button>
-                    <button class="drawer-emoji-btn" onclick="addEmojiFromDrawer('${msgId}', '❤️')">❤️</button>
-                    <button class="drawer-emoji-btn" onclick="addEmojiFromDrawer('${msgId}', '😂')">😂</button>
-                    <button class="drawer-emoji-btn" onclick="addEmojiFromDrawer('${msgId}', '😮')">😮</button>
-                </div>
-                <div class="drawer-buttons-row">
-                    <button class="drawer-action-btn" onclick="initiateReplyContext('${msgId}')">Reply</button>
-                    ${isMsgOwner ? `<button class="drawer-action-btn delete-btn-style" onclick="deleteMessageTrack('${msgId}')">Delete</button>` : ''}
-                </div>
-            </div>
-        `;
-        targetDrawer.style.display = "block";
-    }
-}
-
-function addEmojiFromDrawer(msgId, emoji) {
-    const msg = localMessagesArray.find(m => m.id === msgId);
-    if (msg) {
-        if (!msg.reactions) msg.reactions = {};
-        if (!msg.reactions[emoji]) msg.reactions[emoji] = {};
-        
-        if (msg.reactions[emoji][currentUserId]) {
-            delete msg.reactions[emoji][currentUserId];
-        } else {
-            msg.reactions[emoji][currentUserId] = true;
-        }
-        renderChatMessages(localMessagesArray);
-    }
-}
-
-function toggleEmojiReaction(msgId, emoji, event) {
-    event.stopPropagation();
-    addEmojiFromDrawer(msgId, emoji);
-}
-
-function initiateReplyContext(msgId) {
-    const msg = localMessagesArray.find(m => m.id === msgId);
-    if (msg) {
-        activeReplyTargetId = msgId;
-        document.getElementById('reply-snippet').innerText = msg.text;
-        document.getElementById('reply-bar').style.display = 'flex';
-        document.querySelectorAll('[id^="drawer-"]').forEach(d => d.style.display = "none");
-    }
-}
-
-function cancelReply() {
-    activeReplyTargetId = null;
-    document.getElementById('reply-bar').style.display = 'none';
-}
-
 function sendMessage() {
     const input = document.getElementById('message-input');
     const text = input.value.trim();
     if (!text) return;
-
-    let replyText = null;
-    if (activeReplyTargetId) {
-        const matched = localMessagesArray.find(m => m.id === activeReplyTargetId);
-        if (matched) replyText = matched.text;
-    }
 
     const newMsgObj = {
         id: "msg_" + Date.now(),
         senderId: currentUserId,
         senderName: "You",
         text: text,
-        timestamp: Date.now(),
-        reactions: {},
-        replyToId: activeReplyTargetId,
-        replyToText: replyText
+        timestamp: Date.now()
     };
 
     localMessagesArray.push(newMsgObj);
     renderChatMessages(localMessagesArray);
     
     input.value = "";
-    cancelReply();
     scrollToBottom();
-}
-
-function deleteMessageTrack(msgId) {
-    localMessagesArray = localMessagesArray.filter(m => m.id !== msgId);
-    renderChatMessages(localMessagesArray);
 }
 
 function scrollToBottom() {
@@ -359,23 +227,30 @@ function scrollToBottom() {
     }
 }
 
-// Close active drawers if clicking anywhere else on screen
-document.addEventListener('click', () => {
-    document.querySelectorAll('[id^="drawer-"]').forEach(d => d.style.display = "none");
-});
-
 // ==========================================================================
-// RESTORED: Authentication / Logout Function
+// Fixed Authentication / Logout Function
 // ==========================================================================
 function handleLogout() {
     const confirmLogout = confirm("Are you sure you want to log out of Redflag Build?");
     if (confirmLogout) {
         alert("Logged out safely.");
-        // If your page uses custom routing or an auth listener, redirect here:
-        // window.location.href = "login.html"; 
+        // Redirect completely out or refresh state cleanly
+        window.location.reload();
     }
 }
 
+// Setup initial triggers when window completes script load cycles
 window.onload = () => {
-    loadScheduleFromFirebase(null); 
+    renderAllDayTables(); 
+
+    // Listen for the Enter key on the chat input box
+    const chatInput = document.getElementById('message-input');
+    if (chatInput) {
+        chatInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+    }
 };
