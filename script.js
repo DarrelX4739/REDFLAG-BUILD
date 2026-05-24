@@ -196,8 +196,3 @@ function deleteColumn() {
         link = document.createElement('link');
         document.head.appendChild(link);
     }
-    link.type = 'image/png';
-    link.rel = 'icon';
-    // This feeds the raw image data straight to the browser tab
-    link.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANSUhEUgAAAAsAAAAAsCAYAAABzNVQICAgIfAhkiAAAA0VJREFUWlxtbU9oXFUUxn/nZRgHDSH/WtoYm1YLFXUhIuJCgpS0BrWlNehGEcFF1aXoShBERETcVBeKK10IBUNcBNE62jEqsYuCpaJtGrApEpNJjFoaJq5530Ricx7706r2ZoPHrx3z8f5vnvuOffBJv7vsGYBSY+4+4HsepIkr5rZDxnuoLs/miLWZj05ueM16yff/dcIIbyuCEEIL0e4x3LEI8fkFeY1xlMSSTOd5oEkGYmtm9lDjd+SeJPbmyOeL8MERf+RPbzNjmY60SOQ1A1UJc2a2bYIZY+ZTdS5dwCncoz3d0F1GlZBc1y0Be6zd/kuS4tWwN2fB9okfdTE+KGG94FcdHESzk7DeeAXsJ/Zqg8ZDz28py7uuqoBM7sfeLDZMUgaanJflzdQhl1AH3ANSAVoYclEjweOqIsntJNS1ICkbWZ2m6TDQEXSYstDNzJ6JZWAe3LR1c+gC2gFdM3ANfTjtFLC0XEMv0aielQiT5ekkHgYkUTN7rJFgZglwEKiYWSm9gwXTsAMMAUU1x671SIz3IzoFvRYKrPVKrkKuPu+usi1wMBVjuGspJlUYO4UnFuAZUDAcmiWOSZ5moTtVqLPaJxMwnFbopoz0DhS7n4Y+ETScRDP9Cea9TFMrQAtbQBc8CntGuSNxWY1SWGKTDADdRiu7ql8S5x93JBXcfiV1Kkh6XtDe18v290udIzyLdiNSJvJPfQwevqJPerGa2B1IjZWaDQL+ZjZAevXDQ2Y2JKlqZp3U/oKfxmGOtSk4BJpizH7JHKSpUgV01MQ6l6T4xKypdsXZBJ0igAF76C0ytwBpgAXeZj6+MFayKeMiCpWNq5pglJcsbMqkA1G6s36v5/GrVahu2gm3C2cCR5iwfKF83E08ZA042s7YI54u62HASgbsPAccLlety2dXNmHXwJFuvLJxDCOGlbIe5++n1uKqedw8RzoKkol+aGvYv7Q+N8ak+JbaRK8Pdv4n8et/IcMabTMN+TTxzu07Q/Z+F67trc/fVSOLBDo+5mHoI4Z0NCTckPhgp7Yqk1gXvd8yAu/+6Ue31e6Dk7h9kYtNJkvzZUGbmkyGeo5ArdXWjBjaxU1s4m++nHeOqdo/qwAAABJRU5ErkJggg==';
-})();
