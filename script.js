@@ -29,12 +29,62 @@ auth.onAuthStateChanged((user) => {
         document.getElementById('main-content').style.display = 'block';
         initApp();
         initChat();
+        initPresence(); // Added real-time user presence tracking module
     } else {
         currentUserProfile = null;
         document.getElementById('password-screen').style.display = 'flex';
         document.getElementById('main-content').style.display = 'none';
     }
 });
+
+// The Realtime Online / Offline Synchronization Engine
+function initPresence() {
+    if (!currentUserProfile) return;
+
+    const myStatusRef = db.ref(`status/${currentUserProfile.uid}`);
+    const connectedRef = db.ref(".info/connected");
+
+    // Pull or establish cleaner display name string
+    const currentUserName = currentUserProfile.displayName || currentUserProfile.email.split('@')[0];
+
+    connectedRef.on("value", (snapshot) => {
+        if (snapshot.val() === false) return;
+
+        // Queue instructions ahead of time on server for connection disconnect drops
+        myStatusRef.onDisconnect().set({
+            state: "offline",
+            last_changed: firebase.database.ServerValue.TIMESTAMP,
+            name: currentUserName
+        }).then(() => {
+            // Set current state explicitly to online
+            myStatusRef.set({
+                state: "online",
+                last_changed: firebase.database.ServerValue.TIMESTAMP,
+                name: currentUserName
+            });
+        });
+    });
+
+    // Synchronize UI view layout changes with database status collection modifications
+    const statusContainer = document.getElementById('online-users-box');
+    db.ref('status').on('value', (snapshot) => {
+        const statuses = snapshot.val();
+        if (!statusContainer) return;
+        
+        statusContainer.innerHTML = ''; // Reset rendering frame
+        if (!statuses) return;
+
+        Object.keys(statuses).forEach(uid => {
+            const user = statuses[uid];
+            if (user.state === 'online') {
+                const tag = document.createElement('div');
+                tag.className = 'online-tag-pill';
+                tag.innerHTML = `<span class="pulse-dot"></span> ${escapeHTML(user.name)}`;
+                statusContainer.appendChild(tag);
+            }
+        });
+    });
+}
 
 function handleAuth() {
     const email = document.getElementById('email-input').value.trim();
@@ -87,7 +137,19 @@ function sendPasswordReset() {
 }
 
 function handleLogout() {
-    auth.signOut();
+    // Gracefully clean up presence reference before logging out explicitly
+    if (currentUserProfile) {
+        const currentUserName = currentUserProfile.displayName || currentUserProfile.email.split('@')[0];
+        db.ref(`status/${currentUserProfile.uid}`).set({
+            state: "offline",
+            last_changed: firebase.database.ServerValue.TIMESTAMP,
+            name: currentUserName
+        }).then(() => {
+            auth.signOut();
+        });
+    } else {
+        auth.signOut();
+    }
 }
 
 function toggleAuthMode() {
@@ -595,6 +657,7 @@ function sendChatMessage() {
     cancelReply();
 }
 
+// Fixed reaction mapping to target current profile variables cleanly
 function toggleEmojiReaction(messageKey, emoji) {
     if (!currentUserProfile) return;
     const reactionUserRef = db.ref(`chat_messages/${messageKey}/reactions/${emoji}/${currentUserProfile.uid}`);
