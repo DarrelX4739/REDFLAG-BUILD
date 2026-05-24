@@ -1,530 +1,175 @@
-/* ==========================================================================
-   Global Reset & Base Theme
-   ========================================================================== */
+/* Core Styling Framework Rules */
 * {
+    box-sizing: border-box;
     margin: 0;
     padding: 0;
-    box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body {
-    background-color: #0d0d0d;
-    color: #e5e5e5;
+    background-color: #121212;
+    color: #ffffff;
+    padding: 20px;
 }
 
+/* Authentication Layout Component */
 #password-screen {
     display: flex;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
-    background-color: #0d0d0d;
-    padding: 20px;
+    min-height: 90vh;
 }
 
 .login-box {
-    background-color: #1a1a1a;
-    padding: 30px;
-    border-radius: 8px;
-    border: 1px solid #ff1a1a;
-    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15);
-    text-align: center;
+    background: #1e1e1e;
+    padding: 40px;
+    border-radius: 10px;
+    border: 1px solid #333;
     width: 100%;
-    max-width: 380px;
+    max-width: 420px;
+    text-align: center;
 }
 
 .login-box h2 {
-    color: #ff1a1a;
-    margin-bottom: 5px;
+    color: #ffcc00;
+    margin-bottom: 10px;
     font-size: 1.5rem;
-    letter-spacing: 1px;
 }
 
-.login-box p {
-    color: #8c8c8c;
-    margin-bottom: 20px;
-    font-size: 0.9rem;
-}
-
-input[type="password"], input[type="text"], input[type="email"] {
+.login-box input {
     width: 100%;
     padding: 12px;
-    background-color: #262626;
-    border: 1px solid #404040;
+    margin: 8px 0;
+    background: #2b2b2b;
+    border: 1px solid #444;
+    color: #fff;
     border-radius: 4px;
-    color: #ffffff;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color 0.2s;
 }
 
-input:focus {
-    border-color: #ff1a1a !important;
+.login-box button {
+    width: 100%;
+    padding: 12px;
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 15px;
 }
 
 .toggle-auth-text, .forgot-text {
     margin-top: 15px;
     font-size: 0.85rem;
-    color: #8c8c8c;
+    color: #aaa;
     cursor: pointer;
 }
 
-.accent-link, .forgot-text:hover {
-    color: #ff1a1a;
-    text-decoration: underline;
-}
+.accent-link { color: #ffcc00; }
 
-/* ==========================================================================
-   Header & Tab Systems Styling
-   ========================================================================== */
+/* Dashboard Structural Templates */
 .dashboard-header {
-    text-align: center;
-    padding: 20px 0;
-    background-color: #111111;
-    border-bottom: 1px solid #222222;
+    background: #1e1e1e;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    margin-bottom: 25px;
 }
 
 .main-title {
-    color: #ff1a1a;
-    letter-spacing: 1px;
+    color: #ffcc00;
+    font-size: 1.8rem;
     margin-bottom: 15px;
 }
 
 .tab-navigation {
     display: flex;
-    justify-content: center;
-    gap: 15px;
+    gap: 10px;
+    flex-wrap: wrap;
 }
 
 .tab-btn {
-    background-color: #222222;
-    color: #ffffff;
-    border: 1px solid #333333;
+    background: #2b2b2b;
+    color: #fff;
+    border: 1px solid #444;
     padding: 10px 20px;
-    font-weight: 600;
     cursor: pointer;
     border-radius: 4px;
+    font-weight: 600;
     transition: all 0.2s;
 }
 
 .tab-btn.active, .tab-btn:hover {
-    background-color: #ff1a1a;
-    border-color: #ff1a1a;
+    background: #ffcc00;
+    color: #000;
+    border-color: #ffcc00;
 }
 
 .tab-btn.logout {
-    background-color: transparent;
-    color: #ff4d4d;
-    border: 1px solid #ff4d4d;
+    margin-left: auto;
+    background: #cc3333;
+    border-color: #cc3333;
 }
 
 .tab-btn.logout:hover {
-    background-color: #ff4d4d;
-    color: #ffffff;
+    background: #b32424;
 }
 
-/* ==========================================================================
-   Grid Layouts and Views (Schedule)
-   ========================================================================== */
-.dashboard-view {
-    padding: 20px;
-    max-width: 1200px;
-    margin: 0 auto;
+.dashboard-view h2 {
+    color: #ffcc00;
+    margin-bottom: 20px;
+    border-left: 4px solid #ffcc00;
+    padding-left: 10px;
 }
 
-.day-section {
-    background-color: #161616;
-    border-left: 4px solid #ff1a1a;
-    border-radius: 4px;
-    padding: 20px;
-    margin-bottom: 30px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-
-.day-title {
-    color: #ffffff;
-    font-size: 1.25rem;
-    margin-bottom: 15px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.controls {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 15px;
-    flex-wrap: wrap;
-}
-
-.btn {
-    padding: 8px 16px;
-    border: none;
-    border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    font-size: 0.85rem;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.login-box button, .btn-add {
-    background-color: #ff1a1a;
-    color: #ffffff;
-    width: 100%;
-    margin-top: 15px;
-}
-
-.btn-add {
-    width: auto;
-    margin-top: 0;
-}
-
-.login-box button:hover, .btn-add:hover {
-    background-color: #cc0000;
-}
-
-.btn-del {
-    background-color: transparent;
-    color: #ff4d4d;
-    border: 1px solid #cc0000;
-}
-
-.btn-del:hover {
-    background-color: #cc0000;
-    color: #ffffff;
-}
-
-.table-container { 
-    width: 100%; 
-    overflow-x: auto; 
-    margin-top: 10px; 
-}
-
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background-color: #1f1f1f; 
-}
-
-th { 
-    background-color: #2d2d2d; 
-    color: #ff1a1a; 
-    padding: 12px; 
-    text-align: center; 
-    border: 1px solid #333333; 
-    font-size: 0.8rem; 
-    font-weight: 600; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px;
-}
-
-td { 
-    padding: 6px; 
-    border: 1px solid #333333; 
-}
-
-/* SPECIFICITY FIX: Target inputs inside the timetable precisely */
-td input.schedule-input { 
-    width: 100%; 
-    background-color: transparent !important; 
-    border: none !important; 
-    color: #ffffff !important; 
-    padding: 6px !important; 
-    text-align: left !important;
-}
-
-td input.schedule-input:focus { 
-    background-color: #2a2a2a !important; 
-}
-
-td input::placeholder { 
-    color: #555555; 
-    font-style: italic; 
-    opacity: 1; 
-}
-
-/* ==========================================================================
-   Live Chat Layouts & Messages Container
-   ========================================================================== */
+/* Chat Platform Structural Views */
 .chat-wrapper {
-    background-color: #161616;
-    border: 1px solid #222222;
-    border-radius: 6px;
-    height: 70vh;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    height: 60vh;
     display: flex;
     flex-direction: column;
-    max-width: 850px;
-    margin: 0 auto;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 .chat-messages {
-    flex-grow: 1;
-    padding: 20px;
+    flex: 1;
     overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-}
-
-/* ==========================================================================
-   Message Rows Flex Layout System (Alignment Fixes)
-   ========================================================================== */
-.chat-msg-row {
-    display: flex !important;
-    width: 100% !important;
-    flex-direction: row !important;
-    margin-bottom: 10px;
-}
-
-.chat-msg-row.self {
-    justify-content: flex-end !important;
-}
-
-.chat-msg-row:not(.self) {
-    justify-content: flex-start !important;
-}
-
-.msg-container-block {
-    display: flex !important;
-    flex-direction: column !important;
-    max-width: 75% !important;
-    width: auto !important;
-}
-
-.chat-msg-row.self .msg-container-block {
-    align-items: flex-end !important;
-}
-
-.chat-msg-row:not(.self) .msg-container-block {
-    align-items: flex-start !important;
-}
-
-/* ==========================================================================
-   Chat Message Bubbles & Meta Details
-   ========================================================================== */
-.chat-msg-bubble {
-    background-color: #262626;
-    padding: 10px 14px;
-    border-radius: 8px;
-    border: 1px solid #333333;
-    width: fit-content;
-    position: relative;
-    cursor: pointer;
-    transition: background-color 0.15s;
-    user-select: none;
-}
-
-.chat-msg-bubble:hover {
-    background-color: #303030;
-}
-
-.chat-msg-bubble.self {
-    background-color: #cc0000;
-    border: none;
-}
-
-.chat-msg-bubble.self:hover {
-    background-color: #e60000;
-}
-
-.msg-meta {
-    font-size: 0.75rem;
-    color: #8c8c8c;
-    margin-bottom: 3px;
-    font-weight: 600;
-}
-
-.chat-msg-bubble.self .msg-meta {
-    color: #ffb3b3;
-}
-
-.msg-reply-context {
-    background-color: rgba(0, 0, 0, 0.25);
-    border-left: 3px solid #ff1a1a;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    color: #b3b3b3;
-    margin-bottom: 6px;
-    max-width: 100%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.chat-msg-bubble.self .msg-reply-context {
-    border-left-color: #ffffff;
-    color: #f2f2f2;
-}
-
-/* ==========================================================================
-   Clickable Action Menu Drawer Styling
-   ========================================================================== */
-.msg-action-menu-drawer {
-    display: flex;
-    flex-direction: column;
-    background-color: #1f1f1f;
-    border: 1px solid #444444;
-    border-radius: 8px;
-    padding: 8px;
-    margin-top: 6px;
-    gap: 8px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    z-index: 20;
-    width: max-content;
-    max-width: 280px;
-}
-
-.drawer-emoji-row {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.drawer-emoji-btn {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 1.2rem;
-    padding: 2px;
-    transition: transform 0.1s;
-}
-
-.drawer-emoji-btn:hover {
-    transform: scale(1.25);
-}
-
-.drawer-buttons-row {
-    display: flex;
-    gap: 8px;
-    border-top: 1px solid #333333;
-    padding-top: 6px;
-}
-
-.drawer-action-btn {
-    background-color: #2a2a2a;
-    color: #ffffff;
-    border: 1px solid #444444;
-    padding: 4px 10px;
-    border-radius: 4px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-weight: 600;
-}
-
-.drawer-action-btn:hover {
-    background-color: #ff1a1a;
-    border-color: #ff1a1a;
-}
-
-.drawer-action-btn.delete-btn-style {
-    color: #ff4d4d;
-    border-color: #552222;
-}
-
-.drawer-action-btn.delete-btn-style:hover {
-    background-color: #cc0000;
-    color: #ffffff;
-    border-color: #cc0000;
-}
-
-.msg-active-reactions-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
-    margin-top: 4px;
-}
-
-.reaction-counter-pill {
-    background-color: #1a1a1a;
-    border: 1px solid #333333;
-    color: #aaaaaa;
-    padding: 2px 6px;
-    border-radius: 10px;
-    font-size: 0.75rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 3px;
-    user-select: none;
-}
-
-.reaction-counter-pill.user-active {
-    border-color: #ff1a1a;
-    background-color: rgba(255, 26, 26, 0.1);
-    color: #ffffff;
-}
-
-/* ==========================================================================
-   Reply Target Input Preview Bar & Areas
-   ========================================================================== */
-.reply-preview-bar {
-    background-color: #1a1a1a;
-    border-top: 1px solid #ff1a1a;
-    padding: 8px 15px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.reply-preview-content {
-    font-size: 0.85rem;
-    max-width: 85%;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.reply-label {
-    color: #ff1a1a;
-    margin-right: 5px;
-}
-
-.reply-text-snippet {
-    color: #8c8c8c;
-    font-style: italic;
-}
-
-.cancel-reply-btn {
-    background: none;
-    border: none;
-    color: #8c8c8c;
-    cursor: pointer;
-    font-weight: bold;
-}
-
-.cancel-reply-btn:hover {
-    color: #ff4d4d;
+    padding: 20px;
 }
 
 .chat-input-area {
     display: flex;
     padding: 15px;
-    background-color: #111111;
-    border-top: 1px solid #222222;
+    background: #252525;
+    border-top: 1px solid #333;
     gap: 10px;
 }
 
-.chat-input-area button {
-    background-color: #ff1a1a;
-    color: white;
-    border: none;
-    padding: 0 25px;
+.chat-input-area input {
+    flex: 1;
+    background: #121212;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px;
     border-radius: 4px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.2s;
 }
 
-.chat-input-area button:hover {
-    background-color: #cc0000;
+.chat-input-area button {
+    background: #ffcc00;
+    color: #000;
+    font-weight: bold;
+    padding: 0 25px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
 }
+
 /* ==========================================================================
    NEW ACTIVITY PLANNER STYLES 
    ========================================================================== */
-
 #activity-container {
-    padding: 20px 0;
+    padding: 10px 0;
 }
 
 .task-table-card {
@@ -590,7 +235,6 @@ td input::placeholder {
     border-radius: 4px;
 }
 
-/* Dropdown Status Color Mapping */
 .status-dropdown {
     width: 100%;
     padding: 6px;
@@ -605,13 +249,11 @@ td input::placeholder {
     color: #fff;
 }
 
-/* Status Classes */
 .status-not-started { background-color: #555555; color: #fff; }
 .status-in-progress { background-color: #ffcc00; color: #000; }
 .status-completed { background-color: #2eb82e; color: #fff; }
 .status-stuck { background-color: #cc3333; color: #fff; }
 
-/* Control Buttons */
 .add-table-btn {
     background-color: #ffcc00;
     color: #000;
@@ -624,9 +266,7 @@ td input::placeholder {
     transition: background 0.2s;
 }
 
-.add-table-btn:hover {
-    background-color: #ffe680;
-}
+.add-table-btn:hover { background-color: #ffe680; }
 
 .add-row-btn {
     background: transparent;
@@ -635,7 +275,7 @@ td input::placeholder {
     padding: 6px 12px;
     border-radius: 4px;
     cursor: pointer;
-    margin-top: 10px;
+    margin-top: 15px;
     transition: all 0.2s;
 }
 
