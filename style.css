@@ -519,3 +519,127 @@ td input::placeholder {
 .chat-input-area button:hover {
     background-color: #cc0000;
 }
+/* ==========================================================================
+   NEW ACTIVITY PLANNER STYLES 
+   ========================================================================== */
+
+#activity-container {
+    padding: 20px 0;
+}
+
+.task-table-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.table-header-input {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid #ffcc00;
+    color: #fff;
+    font-size: 1.25rem;
+    font-weight: bold;
+    padding: 5px;
+    margin-bottom: 15px;
+    width: 100%;
+    max-width: 400px;
+}
+
+.table-header-input:focus {
+    outline: none;
+    border-bottom-color: #ffe680;
+}
+
+.activity-matrix-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    color: #e0e0e0;
+}
+
+.activity-matrix-table th, 
+.activity-matrix-table td {
+    border: 1px solid #333;
+    padding: 10px;
+    text-align: left;
+}
+
+.activity-matrix-table th {
+    background-color: #2a2a2a;
+    color: #ffcc00;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+}
+
+.matrix-input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 4px;
+}
+
+.matrix-input:focus {
+    outline: none;
+    background: #252525;
+    border-radius: 4px;
+}
+
+/* Dropdown Status Color Mapping */
+.status-dropdown {
+    width: 100%;
+    padding: 6px;
+    border-radius: 4px;
+    border: none;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.status-dropdown option {
+    background-color: #1e1e1e;
+    color: #fff;
+}
+
+/* Status Classes */
+.status-not-started { background-color: #555555; color: #fff; }
+.status-in-progress { background-color: #ffcc00; color: #000; }
+.status-completed { background-color: #2eb82e; color: #fff; }
+.status-stuck { background-color: #cc3333; color: #fff; }
+
+/* Control Buttons */
+.add-table-btn {
+    background-color: #ffcc00;
+    color: #000;
+    border: none;
+    padding: 12px 24px;
+    font-weight: bold;
+    border-radius: 6px;
+    cursor: pointer;
+    margin-bottom: 25px;
+    transition: background 0.2s;
+}
+
+.add-table-btn:hover {
+    background-color: #ffe680;
+}
+
+.add-row-btn {
+    background: transparent;
+    color: #ffcc00;
+    border: 1px solid #ffcc00;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: all 0.2s;
+}
+
+.add-row-btn:hover {
+    background: #ffcc00;
+    color: #000;
+}
