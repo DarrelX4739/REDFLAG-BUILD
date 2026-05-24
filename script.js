@@ -602,6 +602,7 @@ function toggleMessageActionMenu(messageKey) {
     syncRenderCurrentChatUI();
 }
 
+// Context Menus Utility Handling Block
 function closeAllContextMenus() {
     if (currentlyOpenMenuKey !== null) {
         currentlyOpenMenuKey = null;
@@ -636,10 +637,13 @@ function sendChatMessage() {
     const msgText = inputField.value.trim();
     if(!msgText || !currentUserProfile) return;
 
+    // Swapped the .sender parameter from email layout parsing to chosen display username mapping
+    const customUserName = currentUserProfile.displayName || currentUserProfile.email.split('@')[0];
+
     const msgPayload = {
         uid: currentUserProfile.uid,
-        sender: currentUserProfile.email.split('@')[0],
-        senderName: currentUserProfile.displayName || currentUserProfile.email.split('@')[0],
+        sender: customUserName,
+        senderName: customUserName,
         text: msgText,
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
