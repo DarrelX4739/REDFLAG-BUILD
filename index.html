@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Dashboard & Live Chat</title>
-    <link rel="stylesheet" href="style.css?v=1.4">
+    <title>Redflag Build</title>
+    <link rel="stylesheet" href="style.css?v=1.7">
 </head>
 <body>
 
     <header class="dashboard-header">
-        <h1 class="main-title">DASHBOARD</h1>
+        <h1 class="main-title">REDFLAG BUILD</h1>
         <div class="tab-navigation">
-            <button class="tab-btn active" onclick="switchView('schedule')">Schedule</button>
-            <button class="tab-btn" onclick="switchView('chat')">Live Chat</button>
+            <button class="tab-btn active" onclick="switchView('schedule', this)">Schedule</button>
+            <button class="tab-btn" onclick="switchView('chat', this)">Live Chat</button>
             <button class="tab-btn logout" onclick="handleLogout()">Logout</button>
         </div>
     </header>
@@ -22,34 +22,15 @@
         <section id="schedule-view" class="day-section">
             <h2 class="day-title">Weekly Tasks & Schedule</h2>
             
-            <div class="controls">
-                <button class="btn btn-add" onclick="addNewRow()">Add Row</button>
-                <button class="btn btn-del" onclick="deleteLastRow()">Delete Row</button>
-                <button class="btn btn-add" onclick="addNewDayColumn()">Add Day</button>
-                <button class="btn btn-del" onclick="removeLastDayColumn()">Remove Day</button>
-            </div>
+            <div id="dynamic-tables-container"></div>
 
-            <div class="table-container">
-                <table id="schedule-table">
-                    <thead>
-                        <tr id="table-header-row">
-                            <th>Time / Task</th>
-                            <th>Monday</th>
-                            <th>Tuesday</th>
-                            <th>Wednesday</th>
-                            <th>Thursday</th>
-                            <th>Friday</th>
-                        </tr>
-                    </thead>
-                    <tbody id="schedule-body">
-                        </tbody>
-                </table>
+            <div class="bottom-controls" style="margin-top: 30px; text-align: center;">
+                <button class="btn btn-add-day" onclick="addNewDayTable()">Add Day</button>
             </div>
         </section>
 
         <section id="chat-view" class="chat-wrapper" style="display: none;">
-            <div class="chat-messages" id="chat-messages-container">
-                </div>
+            <div class="chat-messages" id="chat-messages-container"></div>
             
             <div class="reply-preview-bar" id="reply-bar" style="display: none;">
                 <div class="reply-preview-content">
