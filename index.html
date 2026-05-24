@@ -14,6 +14,10 @@
             <h2>REDFLAG BUILD:</h2>
             <p id="auth-instruction">Sign in with your individual account</p>
             
+            <div id="username-field-wrapper" style="display: none; margin-bottom: 20px;">
+                <input type="text" id="username-input" placeholder="Your Display Name / Username">
+            </div>
+
             <input type="email" id="email-input" placeholder="Email Address">
             <br><br>
             <input type="password" id="password-input" placeholder="Password">
@@ -55,6 +59,15 @@
         <section id="view-chat" class="dashboard-view" style="display: none;">
             <div class="chat-wrapper">
                 <div id="chat-messages-box" class="chat-messages"></div>
+                
+                <div id="reply-preview-bar" class="reply-preview-bar" style="display: none;">
+                    <div class="reply-preview-content">
+                        <span class="reply-label">Replying to <b id="reply-target-user">User</b>:</span>
+                        <span id="reply-target-text" class="reply-text-snippet">Message text...</span>
+                    </div>
+                    <button class="cancel-reply-btn" onclick="cancelReply()">✕</button>
+                </div>
+
                 <div class="chat-input-area">
                     <input type="text" id="chat-msg-input" placeholder="Type a message...">
                     <button onclick="sendChatMessage()">Send</button>
