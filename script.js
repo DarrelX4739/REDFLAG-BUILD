@@ -215,6 +215,22 @@ function renderSchedule() {
         daySection.appendChild(tableContainer);
         container.appendChild(daySection);
     });
+
+    // Create and append the global "Add Day" button at the bottom
+    const addDayBtnContainer = document.createElement('div');
+    addDayBtnContainer.style.textAlign = 'center';
+    addDayBtnContainer.style.marginTop = '10px';
+    addDayBtnContainer.style.paddingBottom = '30px';
+
+    const addDayBtn = document.createElement('button');
+    addDayBtn.className = 'btn btn-add';
+    addDayBtn.style.padding = '12px 30px';
+    addDayBtn.style.fontSize = '1.05rem';
+    addDayBtn.innerHTML = '➕ Add New Day';
+    addDayBtn.onclick = addDay;
+
+    addDayBtnContainer.appendChild(addDayBtn);
+    container.appendChild(addDayBtnContainer);
 }
 
 function addRow(day) {
@@ -250,6 +266,54 @@ function deleteColumn() {
         });
         saveToCloud(); renderSchedule();
     }
+}
+
+function addDay() {
+    const sequence = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+    let nextDayName = 'Monday'; // Default fallback
+    
+    if (appData.days && appData.days.length > 0) {
+        // Get the very last day currently on the screen
+        const lastDayFull = appData.days[appData.days.length - 1];
+        
+        // Extract just the word (ignores numbers, e.g., gets "Monday" from "Monday 2")
+        const baseDayMatch = lastDayFull.match(/[A-Za-z]+/);
+        const lastBaseDay = baseDayMatch ? baseDayMatch[0] : 'Friday';
+        
+        // Find where we are in the Mon-Fri sequence
+        const currentIndex = sequence.indexOf(lastBaseDay);
+        
+        // Move to the next day, wrapping back to Monday if the last day was Friday
+        const nextIndex = currentIndex !== -1 ? (currentIndex + 1) % sequence.length : 0;
+        let targetBaseDay = sequence[nextIndex];
+        
+        // Ensure a unique name to prevent Firebase from overwriting previous tables
+        nextDayName = targetBaseDay;
+        let counter = 2;
+        while (appData.days.includes(nextDayName)) {
+            nextDayName = `${targetBaseDay} ${counter}`;
+            counter++;
+        }
+    } else {
+        // Failsafe if all days were deleted
+        appData.days = [];
+    }
+
+    // Initialize the new day with empty rows matching current column headers
+    const initialRows = [
+        new Array(appData.headers.length).fill(''),
+        new Array(appData.headers.length).fill(''),
+        new Array(appData.headers.length).fill('')
+    ];
+
+    // Push to local memory
+    appData.days.push(nextDayName);
+    if (!appData.values) appData.values = {};
+    appData.values[nextDayName] = initialRows;
+
+    // Sync to Cloud and update UI
+    saveToCloud();
+    renderSchedule();
 }
 
 // Synchronized Team Messaging Engine
