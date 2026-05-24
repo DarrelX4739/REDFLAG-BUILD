@@ -273,7 +273,10 @@ function initChat() {
                 const emoBtn = document.createElement('button');
                 emoBtn.className = 'react-badge-btn';
                 emoBtn.innerText = emoji;
-                emoBtn.onclick = () => toggleEmojiReaction(key, emoji);
+                emoBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    toggleEmojiReaction(key, emoji);
+                };
                 pickerTray.appendChild(emoBtn);
             });
             messageRow.appendChild(pickerTray);
@@ -341,7 +344,10 @@ function initChat() {
             replyActionBtn.className = 'msg-action-control-btn';
             replyActionBtn.innerHTML = '💬';
             replyActionBtn.title = 'Reply to Message';
-            replyActionBtn.onclick = () => setReplyTarget(key, senderDisplayName, msgObj.text);
+            replyActionBtn.onclick = (e) => {
+                e.stopPropagation();
+                setReplyTarget(key, senderDisplayName, msgObj.text);
+            };
             controlActionWrapper.appendChild(replyActionBtn);
 
             if (isSelf) {
@@ -349,7 +355,10 @@ function initChat() {
                 deleteBtn.className = 'msg-action-control-btn';
                 deleteBtn.innerHTML = '🗑️';
                 deleteBtn.title = 'Delete Message';
-                deleteBtn.onclick = () => deleteChatMessage(key);
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deleteChatMessage(key);
+                };
                 controlActionWrapper.appendChild(deleteBtn);
             }
             messageRow.appendChild(controlActionWrapper);
