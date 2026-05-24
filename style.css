@@ -222,7 +222,8 @@ td {
     border: 1px solid #333333; 
 }
 
-td input { 
+/* SPECIFICITY FIX: Target inputs inside the timetable precisely */
+td input.schedule-input { 
     width: 100%; 
     background-color: transparent !important; 
     border: none !important; 
@@ -231,7 +232,7 @@ td input {
     text-align: left !important;
 }
 
-td input:focus { 
+td input.schedule-input:focus { 
     background-color: #2a2a2a !important; 
 }
 
@@ -271,21 +272,18 @@ td input::placeholder {
 .chat-msg-row {
     display: flex !important;
     width: 100% !important;
-    flex-direction: row !important; /* Forces horizontal row alignment */
+    flex-direction: row !important;
     margin-bottom: 10px;
 }
 
-/* Your red messages go completely to the RIGHT hand side */
 .chat-msg-row.self {
     justify-content: flex-end !important;
 }
 
-/* Other peoples' gray messages go completely to the LEFT hand side */
 .chat-msg-row:not(.self) {
     justify-content: flex-start !important;
 }
 
-/* Layout container block housing the bubble + active reactions + menu drawer */
 .msg-container-block {
     display: flex !important;
     flex-direction: column !important;
@@ -293,7 +291,6 @@ td input::placeholder {
     width: auto !important;
 }
 
-/* Align internal text/meta elements securely to match outer container edges */
 .chat-msg-row.self .msg-container-block {
     align-items: flex-end !important;
 }
@@ -321,7 +318,6 @@ td input::placeholder {
     background-color: #303030;
 }
 
-/* Red theme color for self messages */
 .chat-msg-bubble.self {
     background-color: #cc0000;
     border: none;
@@ -342,7 +338,6 @@ td input::placeholder {
     color: #ffb3b3;
 }
 
-/* Quoted Reply Formatting */
 .msg-reply-context {
     background-color: rgba(0, 0, 0, 0.25);
     border-left: 3px solid #ff1a1a;
@@ -433,7 +428,6 @@ td input::placeholder {
     border-color: #cc0000;
 }
 
-/* Static reaction rows */
 .msg-active-reactions-row {
     display: flex;
     flex-wrap: wrap;
