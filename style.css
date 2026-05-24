@@ -210,35 +210,28 @@ input:focus {
 }
 
 .chat-msg-row {
-    display: flex !important;
-    width: 100% !important;
-    align-items: flex-start !important;
-    gap: 8px !important;
-    position: relative !important;
+    display: block;
+    width: 100%;
+    clear: both;
 }
 
-/* SIDE ALIGNMENT RULE: Your messages = Left. Other messages = Right. */
-.chat-msg-row.self {
-    justify-content: flex-start !important;
-}
-
-.chat-msg-row:not(.self) {
-    justify-content: flex-end !important;
-}
-
+/* Structural Alignment Rules via Auto-Margins */
 .msg-container-block {
-    display: flex !important;
-    flex-direction: column !important;
-    max-width: 75% !important;
-    position: relative !important;
+    display: flex;
+    flex-direction: column;
+    max-width: 75%;
 }
 
-.chat-msg-row.self .msg-container-block {
-    align-items: flex-start !important;
+/* Your messages go left */
+.msg-left {
+    margin-right: auto;
+    align-items: flex-start;
 }
 
-.chat-msg-row:not(.self) .msg-container-block {
-    align-items: flex-end !important;
+/* Others messages go right */
+.msg-right {
+    margin-left: auto;
+    align-items: flex-end;
 }
 
 .chat-msg-bubble {
@@ -257,6 +250,7 @@ input:focus {
     background-color: #303030;
 }
 
+/* Red theme color for self messages */
 .chat-msg-bubble.self {
     background-color: #cc0000;
     border: none;
