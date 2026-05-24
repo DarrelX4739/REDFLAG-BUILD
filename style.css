@@ -3,37 +3,36 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
 }
 
 body {
-    background-color: #0d0d0d; /* Pitch black background */
-    color: #e5e5e5; /* Light gray text for readability */
+    background-color: #0d0d0d;
+    color: #e5e5e5;
 }
 
-/* Password Screen Container */
 #password-screen {
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
     background-color: #0d0d0d;
+    padding: 20px;
 }
 
-/* Login Box */
 .login-box {
-    background-color: #1a1a1a; /* Dark gray surface */
+    background-color: #1a1a1a;
     padding: 30px;
     border-radius: 8px;
-    border: 1px solid #ff1a1a; /* Subtle sharp red border */
-    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15); /* Soft crimson glow */
+    border: 1px solid #ff1a1a;
+    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15);
     text-align: center;
     width: 100%;
-    max-width: 360px;
+    max-width: 380px;
 }
 
 .login-box h2 {
-    color: #ff1a1a; /* Red title accent */
+    color: #ff1a1a;
     margin-bottom: 5px;
     font-size: 1.5rem;
     letter-spacing: 1px;
@@ -45,41 +44,91 @@ body {
     font-size: 0.9rem;
 }
 
-/* Input Fields */
-input[type="password"], input[type="text"] {
+input[type="password"], input[type="text"], input[type="email"] {
     width: 100%;
     padding: 12px;
-    background-color: #262626; /* Dark input background */
+    background-color: #262626;
     border: 1px solid #404040;
     border-radius: 4px;
     color: #ffffff;
     font-size: 1rem;
-    text-align: center;
     outline: none;
     transition: border-color 0.2s;
 }
 
-input[type="password"]:focus, input[type="text"]:focus {
-    border-color: #ff1a1a; /* Border turns red on focus */
+input:focus {
+    border-color: #ff1a1a !important;
 }
 
-/* Main UI & Typography Settings */
-.main-title {
+.toggle-auth-text, .forgot-text {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #8c8c8c;
+    cursor: pointer;
+}
+
+.accent-link, .forgot-text:hover {
+    color: #ff1a1a;
+    text-decoration: underline;
+}
+
+/* Header & Tab Systems Styling */
+.dashboard-header {
     text-align: center;
-    margin: 30px 0;
-    color: #ff1a1a; /* Red header accent */
-    letter-spacing: 1px;
+    padding: 20px 0;
+    background-color: #111111;
+    border-bottom: 1px solid #222222;
 }
 
-#schedule-container {
+.main-title {
+    color: #ff1a1a;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+}
+
+.tab-navigation {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.tab-btn {
+    background-color: #222222;
+    color: #ffffff;
+    border: 1px solid #333333;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.tab-btn.active, .tab-btn:hover {
+    background-color: #ff1a1a;
+    border-color: #ff1a1a;
+}
+
+.tab-btn.logout {
+    background-color: transparent;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+}
+
+.tab-btn.logout:hover {
+    background-color: #ff4d4d;
+    color: #ffffff;
+}
+
+/* Grid Layouts and Views */
+.dashboard-view {
     padding: 20px;
     max-width: 1200px;
     margin: 0 auto;
 }
 
 .day-section {
-    background-color: #161616; /* Clean dark background panel */
-    border-left: 4px solid #ff1a1a; /* Left red accent bar */
+    background-color: #161616;
+    border-left: 4px solid #ff1a1a;
     border-radius: 4px;
     padding: 20px;
     margin-bottom: 30px;
@@ -94,7 +143,6 @@ input[type="password"]:focus, input[type="text"]:focus {
     letter-spacing: 0.5px;
 }
 
-/* Controls & Buttons Grid Layout */
 .controls {
     display: flex;
     gap: 10px;
@@ -102,7 +150,6 @@ input[type="password"]:focus, input[type="text"]:focus {
     flex-wrap: wrap;
 }
 
-/* Custom Styled Buttons */
 .btn {
     padding: 8px 16px;
     border: none;
@@ -113,7 +160,6 @@ input[type="password"]:focus, input[type="text"]:focus {
     transition: background-color 0.2s, color 0.2s;
 }
 
-/* Unlock and Add Actions (Solid Red Accent) */
 .login-box button, .btn-add {
     background-color: #ff1a1a;
     color: #ffffff;
@@ -127,10 +173,9 @@ input[type="password"]:focus, input[type="text"]:focus {
 }
 
 .login-box button:hover, .btn-add:hover {
-    background-color: #cc0000; /* Darker red on hover */
+    background-color: #cc0000;
 }
 
-/* Delete / Remove Actions (Subtle Outlined Dark Red Theme) */
 .btn-del {
     background-color: transparent;
     color: #ff4d4d;
@@ -142,46 +187,83 @@ input[type="password"]:focus, input[type="text"]:focus {
     color: #ffffff;
 }
 
-/* Data Tables Layout Structure */
-.table-container {
-    width: 100%;
-    overflow-x: auto;
-    margin-top: 10px;
+/* Live Chat Application Styling Module */
+.chat-wrapper {
+    background-color: #161616;
+    border: 1px solid #222222;
+    border-radius: 6px;
+    height: 65vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 800px;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
-table {
-    width: 100%;
-    border-collapse: collapse;
-    background-color: #1f1f1f;
+.chat-messages {
+    flex-grow: 1;
+    padding: 20px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
 }
 
-th {
-    background-color: #2d2d2d;
-    color: #ff1a1a; /* Table headers highlighted in red */
+.chat-msg-bubble {
+    background-color: #262626;
+    padding: 10px 14px;
+    border-radius: 6px;
+    max-width: 75%;
+    width: fit-content;
+    align-self: flex-start;
+    border: 1px solid #333333;
+}
+
+.chat-msg-bubble.self {
+    background-color: #cc0000;
+    align-self: flex-end;
+    border: none;
+}
+
+.msg-meta {
+    font-size: 0.75rem;
+    color: #8c8c8c;
+    margin-bottom: 3px;
     font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.8rem;
-    letter-spacing: 0.5px;
-    padding: 12px;
-    text-align: center;
-    border: 1px solid #333333;
 }
 
-td {
-    padding: 6px;
-    border: 1px solid #333333;
+.chat-msg-bubble.self .msg-meta {
+    color: #ffb3b3;
 }
 
-/* Schedule Table Input Modifications */
-td input {
-    width: 100%;
-    background-color: transparent !important;
-    border: none !important;
-    color: #ffffff !important;
-    text-align: left !important;
-    padding: 6px !important;
+.chat-input-area {
+    display: flex;
+    padding: 15px;
+    background-color: #111111;
+    border-top: 1px solid #222222;
+    gap: 10px;
 }
 
-td input:focus {
-    background-color: #2a2a2a !important; /* Slightly lights up row cells being edited */
+.chat-input-area button {
+    background-color: #ff1a1a;
+    color: white;
+    border: none;
+    padding: 0 25px;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
 }
+
+.chat-input-area button:hover {
+    background-color: #cc0000;
+}
+
+/* Schedule Elements Fixes */
+.table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; background-color: #1f1f1f; }
+th { background-color: #2d2d2d; color: #ff1a1a; padding: 12px; text-align: center; border: 1px solid #333333; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+td { padding: 6px; border: 1px solid #333333; }
+td input { width: 100%; background-color: transparent !important; border: none !important; color: #ffffff !important; padding: 6px !important; text-align: left !important;}
+td input:focus { background-color: #2a2a2a !important; }
+td input::placeholder { color: #555555; font-style: italic; opacity: 1; }
