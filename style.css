@@ -206,7 +206,7 @@ input:focus {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Expanded layout margins to accommodate bottom reaction rows safely */
+    gap: 20px;
 }
 
 .chat-msg-row {
@@ -217,11 +217,17 @@ input:focus {
     position: relative;
 }
 
+/* FIXED SIDE CONFIGURATIONS */
+/* Your own messages align to the LEFT */
 .chat-msg-row.self {
+    justify-content: flex-start;
+}
+
+/* Other people's messages align to the RIGHT */
+.chat-msg-row:not(.self) {
     justify-content: flex-end;
 }
 
-/* Enhanced Inner Chat Container */
 .msg-container-block {
     display: flex;
     flex-direction: column;
@@ -229,7 +235,7 @@ input:focus {
     position: relative;
 }
 
-.chat-msg-row.self .msg-container-block {
+.chat-msg-row:not(.self) .msg-container-block {
     align-items: flex-end;
 }
 
@@ -303,7 +309,7 @@ input:focus {
     box-shadow: 0 4px 12px rgba(0,0,0,0.5);
 }
 
-.chat-msg-row.self .reaction-picker-tray {
+.chat-msg-row:not(.self) .reaction-picker-tray {
     left: auto;
     right: 10px;
 }
