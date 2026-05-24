@@ -210,36 +210,35 @@ input:focus {
 }
 
 .chat-msg-row {
-    display: flex;
-    width: 100%;
-    align-items: flex-start;
-    gap: 8px;
-    position: relative;
+    display: flex !important;
+    width: 100% !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+    position: relative !important;
 }
 
 /* SIDE ALIGNMENT RULE: Your messages = Left. Other messages = Right. */
 .chat-msg-row.self {
-    justify-content: flex-start;
+    justify-content: flex-start !important;
 }
 
 .chat-msg-row:not(.self) {
-    justify-content: flex-end;
+    justify-content: flex-end !important;
 }
 
 .msg-container-block {
-    display: flex;
-    flex-direction: column;
-    max-width: 75%;
-    position: relative;
+    display: flex !important;
+    flex-direction: column !important;
+    max-width: 75% !important;
+    position: relative !important;
 }
 
-/* Align contents inside the container block according to message owner */
 .chat-msg-row.self .msg-container-block {
-    align-items: flex-start;
+    align-items: flex-start !important;
 }
 
 .chat-msg-row:not(.self) .msg-container-block {
-    align-items: flex-end;
+    align-items: flex-end !important;
 }
 
 .chat-msg-bubble {
