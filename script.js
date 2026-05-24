@@ -8,7 +8,7 @@ const firebaseConfig = {
     databaseURL: FIREBASE_DATABASE_URL
 };
 
-// Initialize application modules instantly upon framework availability
+// Initialize modules instantly upon framework availability
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const auth = firebase.auth();
@@ -16,11 +16,12 @@ const auth = firebase.auth();
 let appData = {};
 let isSignUpMode = false;
 let currentUserProfile = null;
-let activeReplyTargetKey = null; // Holds active message payload data for target replies
+let activeReplyTargetKey = null; 
+let currentlyOpenMenuKey = null; // Track which message has an active context menu visible
 
 const AVAILABLE_EMOJIS = ['😊', '😡', '👍', '💀', '🔥', '😂', '👎', '❤️'];
 
-// Realtime User Account Authorization Status State Listener
+// Realtime User Account Status Listener
 auth.onAuthStateChanged((user) => {
     if (user) {
         currentUserProfile = user;
@@ -77,7 +78,7 @@ function sendPasswordReset() {
 
     auth.sendPasswordResetEmail(email)
         .then(() => {
-            resetMsg.innerHTML = "A password reset link has been successfully dispatched to your email address. If you do not receive the message within a few minutes, please check your spam or junk folders.";
+            resetMsg.innerHTML = "A password reset link has been dispatched to your email.";
             resetMsg.style.display = 'block';
         })
         .catch(err => {
@@ -93,7 +94,7 @@ function toggleAuthMode() {
     isSignUpMode = !isSignUpMode;
     document.getElementById('main-auth-btn').innerText = isSignUpMode ? "Sign Up" : "Login";
     document.getElementById('username-field-wrapper').style.display = isSignUpMode ? "block" : "none";
-    document.getElementById('auth-instruction').innerText = isSignUpMode ? "Create a strict individual profile" : "Sign in with your individual account";
+    document.getElementById('auth-instruction').innerText = isSignUpMode ? "Create a strict profile" : "Sign in with your account";
     document.querySelector('.toggle-auth-text').innerHTML = isSignUpMode ? "Already have an account? <span class='accent-link'>Login</span>" : "Don't have an account? <span class='accent-link'>Sign Up</span>";
 }
 
@@ -250,53 +251,36 @@ function deleteColumn() {
     }
 }
 
-// Synchronized Team Messaging Operations Module Engine
+// Synchronized Team Messaging Engine (With Tap-to-Open Action Drawers)
 function initChat() {
     db.ref('chat_messages').limitToLast(60).on('value', (snapshot) => {
         const msgsBox = document.getElementById('chat-messages-box');
         if(!msgsBox) return;
+        
+        // Save scroll placement to prevent jarring jumps unless at bottom
+        const isAtBottom = msgsBox.scrollHeight - msgsBox.scrollTop <= msgsBox.clientHeight + 150;
+        
         msgsBox.innerHTML = '';
         const data = snapshot.val();
         if(!data) return;
 
         Object.keys(data).forEach(key => {
             const msgObj = data[key];
+            const isSelf = msgObj.uid === currentUserProfile.uid;
             
             const messageRow = document.createElement('div');
-            const isSelf = msgObj.uid === currentUserProfile.uid;
             messageRow.className = `chat-msg-row ${isSelf ? 'self' : ''}`;
 
-            // Create Hover Emoji Picker Tray Panel Layout
-            const pickerTray = document.createElement('div');
-            pickerTray.className = 'reaction-picker-tray';
-            AVAILABLE_EMOJIS.forEach(emoji => {
-                const emoBtn = document.createElement('button');
-                emoBtn.className = 'react-badge-btn';
-                emoBtn.innerText = emoji;
-                emoBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    toggleEmojiReaction(key, emoji);
-                };
-                pickerTray.appendChild(emoBtn);
-            });
-            messageRow.appendChild(pickerTray);
-
-            // Create Inner Alignment block wrapper
             const containerBlock = document.createElement('div');
             containerBlock.className = 'msg-container-block';
 
-            // Create Message Content text container box bubble
+            // Message Bubble Element
             const bubble = document.createElement('div');
             bubble.className = `chat-msg-bubble ${isSelf ? 'self' : ''}`;
             
-            // Set up click action to trigger thread replies smoothly
-            bubble.onclick = () => setReplyTarget(key, msgObj.senderName || msgObj.sender || 'User', msgObj.text);
-            
             const senderDisplayName = msgObj.senderName || msgObj.sender || 'Anonymous User';
-            
             let htmlContent = `<div class="msg-meta">${isSelf ? 'You' : senderDisplayName}</div>`;
             
-            // Inject nested structural context markup if message is flagged as comment reply
             if (msgObj.replyTo) {
                 htmlContent += `
                     <div class="msg-reply-context">
@@ -307,24 +291,31 @@ function initChat() {
             
             htmlContent += `<div class="msg-body">${escapeHTML(msgObj.text)}</div>`;
             bubble.innerHTML = htmlContent;
+
+            // TOGGLE ACTION ENGINE: Clicking the message opens/closes its specific menu drawer
+            bubble.onclick = (e) => {
+                e.stopPropagation(); // Stop global background clicks from executing immediately
+                toggleMessageActionMenu(key);
+            };
+
             containerBlock.appendChild(bubble);
 
-            // Construct Active Saved Reactions Badge Counter Pill Elements
+            // Construct Active Reaction Badges (Visible underneath bubble)
             if (msgObj.reactions) {
                 const activeReactionsRow = document.createElement('div');
                 activeReactionsRow.className = 'msg-active-reactions-row';
                 
                 Object.keys(msgObj.reactions).forEach(emoji => {
-                    const explicitClickUsersList = msgObj.reactions[emoji] || {};
-                    const reactionCount = Object.keys(explicitClickUsersList).length;
+                    const clickUsersList = msgObj.reactions[emoji] || {};
+                    const reactionCount = Object.keys(clickUsersList).length;
                     
                     if (reactionCount > 0) {
-                        const hasCurrentUserReacted = explicitClickUsersList[currentUserProfile.uid] === true;
+                        const hasCurrentUserReacted = clickUsersList[currentUserProfile.uid] === true;
                         const pill = document.createElement('div');
                         pill.className = `reaction-counter-pill ${hasCurrentUserReacted ? 'user-active' : ''}`;
                         pill.innerHTML = `<span>${emoji}</span> <span>${reactionCount}</span>`;
                         pill.onclick = (e) => {
-                            e.stopPropagation(); // Avoid triggering thread reply systems accidentally
+                            e.stopPropagation(); // Avoid opening the main panel when tapping a small pill
                             toggleEmojiReaction(key, emoji);
                         };
                         activeReactionsRow.appendChild(pill);
@@ -333,40 +324,80 @@ function initChat() {
                 containerBlock.appendChild(activeReactionsRow);
             }
 
-            messageRow.appendChild(containerBlock);
+            // DYNAMIC MENU DRAWER CONTAINER: Appears dynamically when active key matches
+            if (currentlyOpenMenuKey === key) {
+                const menuDrawer = document.createElement('div');
+                menuDrawer.className = 'msg-action-menu-drawer';
+                menuDrawer.onclick = (e) => e.stopPropagation(); // Keep panel interaction live
 
-            // Functional action options layout controls (Reply & Delete button nodes)
-            const controlActionWrapper = document.createElement('div');
-            controlActionWrapper.style.display = 'flex';
-            controlActionWrapper.style.flexDirection = 'column';
+                // 1. Emoji Selection Row
+                const emojiRow = document.createElement('div');
+                emojiRow.className = 'drawer-emoji-row';
+                AVAILABLE_EMOJIS.forEach(emoji => {
+                    const emoBtn = document.createElement('button');
+                    emoBtn.className = 'drawer-emoji-btn';
+                    emoBtn.innerText = emoji;
+                    emoBtn.onclick = () => {
+                        toggleEmojiReaction(key, emoji);
+                        closeAllContextMenus(); // Close drawer once selected
+                    };
+                    emojiRow.appendChild(emoBtn);
+                });
+                menuDrawer.appendChild(emojiRow);
 
-            const replyActionBtn = document.createElement('button');
-            replyActionBtn.className = 'msg-action-control-btn';
-            replyActionBtn.innerHTML = '💬';
-            replyActionBtn.title = 'Reply to Message';
-            replyActionBtn.onclick = (e) => {
-                e.stopPropagation();
-                setReplyTarget(key, senderDisplayName, msgObj.text);
-            };
-            controlActionWrapper.appendChild(replyActionBtn);
+                // 2. Reply & Delete Actions Buttons Row
+                const buttonsRow = document.createElement('div');
+                buttonsRow.className = 'drawer-buttons-row';
 
-            if (isSelf) {
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'msg-action-control-btn';
-                deleteBtn.innerHTML = '🗑️';
-                deleteBtn.title = 'Delete Message';
-                deleteBtn.onclick = (e) => {
-                    e.stopPropagation();
-                    deleteChatMessage(key);
+                const replyBtn = document.createElement('button');
+                replyBtn.className = 'drawer-action-btn';
+                replyBtn.innerText = '💬 Reply';
+                replyBtn.onclick = () => {
+                    setReplyTarget(key, senderDisplayName, msgObj.text);
+                    closeAllContextMenus();
                 };
-                controlActionWrapper.appendChild(deleteBtn);
-            }
-            messageRow.appendChild(controlActionWrapper);
+                buttonsRow.appendChild(replyBtn);
 
+                if (isSelf) {
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'drawer-action-btn delete-btn-style';
+                    deleteBtn.innerText = '🗑️ Delete';
+                    deleteBtn.onclick = () => {
+                        deleteChatMessage(key);
+                        closeAllContextMenus();
+                    };
+                    buttonsRow.appendChild(deleteBtn);
+                }
+
+                menuDrawer.appendChild(buttonsRow);
+                containerBlock.appendChild(menuDrawer);
+            }
+
+            messageRow.appendChild(containerBlock);
             msgsBox.appendChild(messageRow);
         });
-        scrollToBottomChat();
+
+        if (isAtBottom) scrollToBottomChat();
     });
+}
+
+function toggleMessageActionMenu(messageKey) {
+    if (currentlyOpenMenuKey === messageKey) {
+        currentlyOpenMenuKey = null; // Close if clicked again
+    } else {
+        currentlyOpenMenuKey = messageKey; // Set open target drawer
+    }
+    // Re-render local chat layout array nodes cleanly to reflect UI adjustments instantly
+    db.ref('chat_messages').off('value');
+    initChat();
+}
+
+function closeAllContextMenus() {
+    if (currentlyOpenMenuKey !== null) {
+        currentlyOpenMenuKey = null;
+        db.ref('chat_messages').off('value');
+        initChat();
+    }
 }
 
 function setReplyTarget(messageKey, user, text) {
@@ -395,7 +426,6 @@ function sendChatMessage() {
         timestamp: firebase.database.ServerValue.TIMESTAMP
     };
 
-    // Append reply contextual payload mapping if targeted session flag is active
     if (activeReplyTargetKey) {
         msgPayload.replyTo = {
             msgKey: activeReplyTargetKey,
@@ -406,7 +436,7 @@ function sendChatMessage() {
 
     db.ref('chat_messages').push(msgPayload);
     inputField.value = '';
-    cancelReply(); // Wipes inline reply mode fields instantly upon completion
+    cancelReply();
 }
 
 function toggleEmojiReaction(messageKey, emoji) {
@@ -415,9 +445,9 @@ function toggleEmojiReaction(messageKey, emoji) {
     
     reactionUserRef.once('value', (snapshot) => {
         if (snapshot.exists()) {
-            reactionUserRef.remove(); // Removes user register toggle matching click input
+            reactionUserRef.remove(); 
         } else {
-            reactionUserRef.set(true); // Registers user click tracking variables safely
+            reactionUserRef.set(true); 
         }
     });
 }
@@ -429,12 +459,18 @@ function deleteChatMessage(messageKey) {
     }
 }
 
-// Bind Enter key to instant message dispatching routing actions
+// Global Application Core Bindings
 document.addEventListener('DOMContentLoaded', () => {
+    // 1. Listen for standard Enter click actions inside the text input
     document.body.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && document.activeElement.id === 'chat-msg-input') {
             sendChatMessage();
         }
+    });
+
+    // 2. Dynamic Global Listener: Clicking anywhere else on the screen immediately wipes context boxes
+    document.addEventListener('click', () => {
+        closeAllContextMenus();
     });
 });
 
