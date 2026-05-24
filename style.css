@@ -11,6 +11,7 @@
 body {
     background-color: #0d0d0d;
     color: #e5e5e5;
+    -webkit-text-size-adjust: 100%; /* Prevents iOS font boosting bugs */
 }
 
 #password-screen {
@@ -124,7 +125,7 @@ input:focus {
 }
 
 /* ==========================================================================
-   Grid Layouts and Views (Schedule)
+   Grid Layouts and Views (Schedule with Tick Box Support)
    ========================================================================== */
 .dashboard-view {
     padding: 20px;
@@ -169,7 +170,7 @@ input:focus {
 .login-box button, .btn-add {
     background-color: #ff1a1a;
     color: #ffffff;
-    width: 100%;
+    width: auto;
     margin-top: 15px;
 }
 
@@ -195,8 +196,9 @@ input:focus {
 
 .table-container { 
     width: 100%; 
-    overflow-x: auto; 
+    overflow-x: auto; /* Allows safe side-scrolling on phone displays */
     margin-top: 10px; 
+    -webkit-overflow-scrolling: touch; /* Smooth inertia scroll for iPhones */
 }
 
 table { 
@@ -222,7 +224,16 @@ td {
     border: 1px solid #333333; 
 }
 
-td input { 
+/* Flex container layout inside the cell to host the input text and checkbox seamlessly */
+.cell-action-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+}
+
+td input.schedule-input { 
+    flex-grow: 1;
     width: 100%; 
     background-color: transparent !important; 
     border: none !important; 
@@ -231,14 +242,30 @@ td input {
     text-align: left !important;
 }
 
-td input:focus { 
+td input.schedule-input:focus { 
     background-color: #2a2a2a !important; 
 }
 
-td input::placeholder { 
+td input.schedule-input::placeholder { 
     color: #555555; 
     font-style: italic; 
     opacity: 1; 
+}
+
+/* Styled Schedule Checkbox Layout */
+.schedule-checkbox {
+    width: 18px !important;
+    height: 18px !important;
+    cursor: pointer;
+    accent-color: #ff1a1a; /* Forces modern browser checkmarks to match your red theme */
+    flex-shrink: 0;
+}
+
+/* Striking through text slightly when the row checkbox is checked */
+.cell-action-wrapper:has(.schedule-checkbox:checked) input.schedule-input {
+    text-decoration: line-through;
+    color: #555555 !important;
+    opacity: 0.6;
 }
 
 /* ==========================================================================
@@ -266,12 +293,12 @@ td input::placeholder {
 }
 
 /* ==========================================================================
-   Message Rows Flex Layout System (Alignment Fixes)
+   Message Rows Flex Layout System (Cross-Device Edge Alignment)
    ========================================================================== */
 .chat-msg-row {
     display: flex !important;
     width: 100% !important;
-    flex-direction: row !important; /* Forces horizontal row alignment */
+    flex-direction: row !important; /* Locks layout alignment horizontally */
     margin-bottom: 10px;
 }
 
@@ -524,4 +551,50 @@ td input::placeholder {
 
 .chat-input-area button:hover {
     background-color: #cc0000;
+}
+
+/* ==========================================================================
+   Mobile Responsive Rules Overrides
+   ========================================================================== */
+@media screen and (max-width: 600px) {
+    .dashboard-view {
+        padding: 10px;
+    }
+    
+    .tab-navigation {
+        gap: 8px;
+    }
+    
+    .tab-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        flex: 1;
+        text-align: center;
+    }
+    
+    .chat-wrapper {
+        height: 78vh; /* Maximizes vertical room for chatting over keyboards */
+        width: 100%;
+    }
+    
+    .chat-messages {
+        padding: 12px;
+        gap: 10px;
+    }
+    
+    .msg-container-block {
+        max-width: 85% !important; /* Extends mobile message length room */
+    }
+    
+    table {
+        min-width: 650px; /* Elevated minimum width layout to adapt to dynamic columns safely */
+    }
+    
+    .chat-input-area {
+        padding: 10px;
+    }
+    
+    .chat-input-area button {
+        padding: 0 15px;
+    }
 }
