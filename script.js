@@ -268,11 +268,11 @@ function initChat() {
             const isSelf = msgObj.uid === currentUserProfile.uid;
             
             const messageRow = document.createElement('div');
-            messageRow.className = 'chat-msg-row';
+            // Attach the .self class to your own messages so CSS can catch it and split alignment
+            messageRow.className = `chat-msg-row ${isSelf ? 'self' : ''}`;
 
             const containerBlock = document.createElement('div');
-            // Explicit assignment: self messages go left, other messages go right
-            containerBlock.className = `msg-container-block ${isSelf ? 'msg-left' : 'msg-right'}`;
+            containerBlock.className = 'msg-container-block';
 
             // Message Bubble Element
             const bubble = document.createElement('div');
