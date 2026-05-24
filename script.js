@@ -19,6 +19,12 @@ function checkPassword() {
     const errorMsg = document.getElementById('error-msg');
     
     if (input === '4739') {
+        // Safety Check: Make sure Firebase scripts are fully loaded before trying to use them
+        if (typeof firebase === 'undefined') {
+            alert("Firebase libraries are still loading from the web. Please wait 2 seconds and try again!");
+            return;
+        }
+
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         
@@ -188,3 +194,4 @@ function deleteColumn() {
         saveToCloud(); 
         renderSchedule();
     }
+}
