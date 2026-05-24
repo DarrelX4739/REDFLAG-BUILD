@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Redflag Build</title>
-    <link rel="stylesheet" href="style.css?v=1.7">
-</head>
+    <link rel="stylesheet" href="style.css">
+    </head>
 <body>
 
     <header class="dashboard-header">
         <h1 class="main-title">REDFLAG BUILD</h1>
         <div class="tab-navigation">
-            <button class="tab-btn active" onclick="switchView('schedule', this)">Schedule</button>
-            <button class="tab-btn" onclick="switchView('chat', this)">Live Chat</button>
-            <button class="tab-btn logout" onclick="handleLogout()">Logout</button>
+            <button id="nav-schedule-btn" class="tab-navigation tab-btn active" onclick="switchView('schedule', this)">Schedule</button>
+            <button id="nav-chat-btn" class="tab-navigation tab-btn" onclick="switchView('chat', this)">Live Chat</button>
+            <button id="nav-logout-btn" class="tab-navigation tab-btn logout" onclick="handleLogout()">Logout</button>
         </div>
     </header>
 
@@ -25,24 +25,24 @@
             <div id="dynamic-tables-container"></div>
 
             <div class="bottom-controls" style="margin-top: 30px; text-align: center;">
-                <button class="btn btn-add-day" onclick="addNewDayTable()">Add Day</button>
+                <button id="add-day-btn" class="btn btn-add-day" onclick="addNewDayTable()">Add Day</button>
             </div>
         </section>
 
-        <section id="chat-view" class="chat-wrapper" style="display: none;">
+        <section id="chat-view" class="chat-wrapper" style="display: none; flex-direction: column;">
             <div class="chat-messages" id="chat-messages-container"></div>
             
-            <div class="reply-preview-bar" id="reply-bar" style="display: none;">
+            <div class="reply-preview-bar" id="reply-bar" style="display: none; justify-content: space-between; background: #222; padding: 8px;">
                 <div class="reply-preview-content">
-                    <span class="reply-label">Replying to:</span>
-                    <span class="reply-text-snippet" id="reply-snippet">...</span>
+                    <span class="reply-label" style="color: #ff1a1a;">Replying to: </span>
+                    <span class="reply-text-snippet" id="reply-snippet" style="color: #fff;">...</span>
                 </div>
-                <button class="cancel-reply-btn" onclick="cancelReply()">✕</button>
+                <button class="cancel-reply-btn" style="background: none; border: none; color: #fff; cursor: pointer;" onclick="cancelReply()">✕</button>
             </div>
 
-            <div class="chat-input-area">
-                <input type="text" id="message-input" placeholder="Type a message...">
-                <button onclick="sendMessage()">Send</button>
+            <div class="chat-input-area" style="display: flex; gap: 10px; padding: 10px;">
+                <input type="text" id="message-input" placeholder="Type a message..." style="flex-grow: 1;">
+                <button id="send-msg-btn" onclick="sendMessage()">Send</button>
             </div>
         </section>
 
