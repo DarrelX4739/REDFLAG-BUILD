@@ -251,13 +251,12 @@ function deleteColumn() {
     }
 }
 
-// Synchronized Team Messaging Engine (With Tap-to-Open Action Drawers)
+// Synchronized Team Messaging Engine (Standard Instant Click Actions)
 function initChat() {
     db.ref('chat_messages').limitToLast(60).on('value', (snapshot) => {
         const msgsBox = document.getElementById('chat-messages-box');
         if(!msgsBox) return;
         
-        // Save scroll placement to prevent jarring jumps unless at bottom
         const isAtBottom = msgsBox.scrollHeight - msgsBox.scrollTop <= msgsBox.clientHeight + 150;
         
         msgsBox.innerHTML = '';
@@ -292,9 +291,9 @@ function initChat() {
             htmlContent += `<div class="msg-body">${escapeHTML(msgObj.text)}</div>`;
             bubble.innerHTML = htmlContent;
 
-            // TOGGLE ACTION ENGINE: Clicking the message opens/closes its specific menu drawer
+            // Simple standard tap/click interaction
             bubble.onclick = (e) => {
-                e.stopPropagation(); // Stop global background clicks from executing immediately
+                e.stopPropagation(); 
                 toggleMessageActionMenu(key);
             };
 
@@ -315,7 +314,7 @@ function initChat() {
                         pill.className = `reaction-counter-pill ${hasCurrentUserReacted ? 'user-active' : ''}`;
                         pill.innerHTML = `<span>${emoji}</span> <span>${reactionCount}</span>`;
                         pill.onclick = (e) => {
-                            e.stopPropagation(); // Avoid opening the main panel when tapping a small pill
+                            e.stopPropagation(); 
                             toggleEmojiReaction(key, emoji);
                         };
                         activeReactionsRow.appendChild(pill);
@@ -328,7 +327,7 @@ function initChat() {
             if (currentlyOpenMenuKey === key) {
                 const menuDrawer = document.createElement('div');
                 menuDrawer.className = 'msg-action-menu-drawer';
-                menuDrawer.onclick = (e) => e.stopPropagation(); // Keep panel interaction live
+                menuDrawer.onclick = (e) => e.stopPropagation(); 
 
                 // 1. Emoji Selection Row
                 const emojiRow = document.createElement('div');
@@ -339,7 +338,7 @@ function initChat() {
                     emoBtn.innerText = emoji;
                     emoBtn.onclick = () => {
                         toggleEmojiReaction(key, emoji);
-                        closeAllContextMenus(); // Close drawer once selected
+                        closeAllContextMenus(); 
                     };
                     emojiRow.appendChild(emoBtn);
                 });
@@ -383,11 +382,10 @@ function initChat() {
 
 function toggleMessageActionMenu(messageKey) {
     if (currentlyOpenMenuKey === messageKey) {
-        currentlyOpenMenuKey = null; // Close if clicked again
+        currentlyOpenMenuKey = null; 
     } else {
-        currentlyOpenMenuKey = messageKey; // Set open target drawer
+        currentlyOpenMenuKey = messageKey; 
     }
-    // Re-render local chat layout array nodes cleanly to reflect UI adjustments instantly
     db.ref('chat_messages').off('value');
     initChat();
 }
@@ -461,14 +459,12 @@ function deleteChatMessage(messageKey) {
 
 // Global Application Core Bindings
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. Listen for standard Enter click actions inside the text input
     document.body.addEventListener('keypress', function(e) {
         if (e.key === 'Enter' && document.activeElement.id === 'chat-msg-input') {
             sendChatMessage();
         }
     });
 
-    // 2. Dynamic Global Listener: Clicking anywhere else on the screen immediately wipes context boxes
     document.addEventListener('click', () => {
         closeAllContextMenus();
     });
