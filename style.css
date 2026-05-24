@@ -1,6 +1,4 @@
-/* ==========================================================================
-   Global Reset & Base Theme
-   ========================================================================== */
+/* Global Reset & Base Theme */
 * {
     margin: 0;
     padding: 0;
@@ -11,7 +9,39 @@
 body {
     background-color: #0d0d0d;
     color: #e5e5e5;
-    -webkit-text-size-adjust: 100%;
+}
+
+#password-screen {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #0d0d0d;
+    padding: 20px;
+}
+
+.login-box {
+    background-color: #1a1a1a;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #ff1a1a;
+    box-shadow: 0 4px 15px rgba(255, 26, 26, 0.15);
+    text-align: center;
+    width: 100%;
+    max-width: 380px;
+}
+
+.login-box h2 {
+    color: #ff1a1a;
+    margin-bottom: 5px;
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+}
+
+.login-box p {
+    color: #8c8c8c;
+    margin-bottom: 20px;
+    font-size: 0.9rem;
 }
 
 input[type="password"], input[type="text"], input[type="email"] {
@@ -30,9 +60,19 @@ input:focus {
     border-color: #ff1a1a !important;
 }
 
-/* ==========================================================================
-   Header & Tab Systems Styling
-   ========================================================================== */
+.toggle-auth-text, .forgot-text {
+    margin-top: 15px;
+    font-size: 0.85rem;
+    color: #8c8c8c;
+    cursor: pointer;
+}
+
+.accent-link, .forgot-text:hover {
+    color: #ff1a1a;
+    text-decoration: underline;
+}
+
+/* Header & Tab Systems Styling */
 .dashboard-header {
     text-align: center;
     padding: 20px 0;
@@ -79,9 +119,7 @@ input:focus {
     color: #ffffff;
 }
 
-/* ==========================================================================
-   Grid Layouts and Views (Schedule)
-   ========================================================================== */
+/* Grid Layouts and Views */
 .dashboard-view {
     padding: 20px;
     max-width: 1200px;
@@ -105,6 +143,13 @@ input:focus {
     letter-spacing: 0.5px;
 }
 
+.controls {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
 .btn {
     padding: 8px 16px;
     border: none;
@@ -115,12 +160,19 @@ input:focus {
     transition: background-color 0.2s, color 0.2s;
 }
 
-.btn-add {
+.login-box button, .btn-add {
     background-color: #ff1a1a;
     color: #ffffff;
+    width: 100%;
+    margin-top: 15px;
 }
 
-.btn-add:hover {
+.btn-add {
+    width: auto;
+    margin-top: 0;
+}
+
+.login-box button:hover, .btn-add:hover {
     background-color: #cc0000;
 }
 
@@ -135,58 +187,7 @@ input:focus {
     color: #ffffff;
 }
 
-.table-container { 
-    width: 100%; 
-    overflow-x: auto; 
-    margin-top: 10px; 
-    -webkit-overflow-scrolling: touch;
-}
-
-table { 
-    width: 100%; 
-    border-collapse: collapse; 
-    background-color: #1f1f1f; 
-}
-
-th { 
-    background-color: #2d2d2d; 
-    color: #ff1a1a; 
-    padding: 12px; 
-    text-align: center; 
-    border: 1px solid #333333; 
-    font-size: 0.8rem; 
-    font-weight: 600; 
-    text-transform: uppercase; 
-    letter-spacing: 0.5px;
-}
-
-td { 
-    padding: 6px; 
-    border: 1px solid #333333; 
-}
-
-td input.schedule-input { 
-    width: 100%; 
-    background-color: transparent !important; 
-    border: none !important; 
-    color: #ffffff !important; 
-    padding: 6px !important; 
-    text-align: left !important;
-}
-
-td input.schedule-input:focus { 
-    background-color: #2a2a2a !important; 
-}
-
-td input::placeholder { 
-    color: #555555; 
-    font-style: italic; 
-    opacity: 1; 
-}
-
-/* ==========================================================================
-   Live Chat Layouts & Messages Container
-   ========================================================================== */
+/* Live Chat Layouts */
 .chat-wrapper {
     background-color: #161616;
     border: 1px solid #222222;
@@ -209,32 +210,36 @@ td input::placeholder {
 }
 
 .chat-msg-row {
-    display: flex !important;
-    width: 100% !important;
-    margin-bottom: 10px;
+    display: flex;
+    width: 100%;
+    align-items: flex-start;
+    gap: 8px;
+    position: relative;
 }
 
+/* SIDE ALIGNMENT RULE: Your messages = Left. Other messages = Right. */
 .chat-msg-row.self {
-    justify-content: flex-end !important;
+    justify-content: flex-start;
 }
 
 .chat-msg-row:not(.self) {
-    justify-content: flex-start !important;
+    justify-content: flex-end;
 }
 
 .msg-container-block {
-    display: flex !important;
-    flex-direction: column !important;
-    max-width: 75% !important;
-    width: auto !important;
+    display: flex;
+    flex-direction: column;
+    max-width: 75%;
+    position: relative;
 }
 
+/* Align contents inside the container block according to message owner */
 .chat-msg-row.self .msg-container-block {
-    align-items: flex-end !important;
+    align-items: flex-start;
 }
 
 .chat-msg-row:not(.self) .msg-container-block {
-    align-items: flex-start !important;
+    align-items: flex-end;
 }
 
 .chat-msg-bubble {
@@ -273,6 +278,7 @@ td input::placeholder {
     color: #ffb3b3;
 }
 
+/* Quoted Reply Formatting */
 .msg-reply-context {
     background-color: rgba(0, 0, 0, 0.25);
     border-left: 3px solid #ff1a1a;
@@ -292,9 +298,7 @@ td input::placeholder {
     color: #f2f2f2;
 }
 
-/* ==========================================================================
-   Clickable Action Menu Drawer Styling
-   ========================================================================== */
+/* Clickable Action Menu Drawer styling */
 .msg-action-menu-drawer {
     display: flex;
     flex-direction: column;
@@ -363,6 +367,7 @@ td input::placeholder {
     border-color: #cc0000;
 }
 
+/* Static reaction rows */
 .msg-active-reactions-row {
     display: flex;
     flex-wrap: wrap;
@@ -390,9 +395,7 @@ td input::placeholder {
     color: #ffffff;
 }
 
-/* ==========================================================================
-   Reply Target Input Preview Bar & Areas
-   ========================================================================== */
+/* Reply target view layouts */
 .reply-preview-bar {
     background-color: #1a1a1a;
     border-top: 1px solid #ff1a1a;
@@ -440,10 +443,6 @@ td input::placeholder {
     gap: 10px;
 }
 
-.chat-input-area input {
-    flex-grow: 1;
-}
-
 .chat-input-area button {
     background-color: #ff1a1a;
     color: white;
@@ -459,48 +458,11 @@ td input::placeholder {
     background-color: #cc0000;
 }
 
-/* ==========================================================================
-   Mobile Responsive Rules Overrides
-   ========================================================================== */
-@media screen and (max-width: 600px) {
-    .dashboard-view {
-        padding: 10px;
-    }
-    
-    .tab-navigation {
-        gap: 8px;
-    }
-    
-    .tab-btn {
-        padding: 8px 12px;
-        font-size: 0.85rem;
-        flex: 1;
-        text-align: center;
-    }
-    
-    .chat-wrapper {
-        height: 78vh; 
-        width: 100%;
-    }
-    
-    .chat-messages {
-        padding: 12px;
-        gap: 10px;
-    }
-    
-    .msg-container-block {
-        max-width: 85% !important;
-    }
-    
-    table {
-        min-width: 500px;
-    }
-    
-    .chat-input-area {
-        padding: 10px;
-    }
-    
-    .chat-input-area button {
-        padding: 0 15px;
-    }
-}
+/* Schedule Layouts */
+.table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
+table { width: 100%; border-collapse: collapse; background-color: #1f1f1f; }
+th { background-color: #2d2d2d; color: #ff1a1a; padding: 12px; text-align: center; border: 1px solid #333333; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+td { padding: 6px; border: 1px solid #333333; }
+td input { width: 100%; background-color: transparent !important; border: none !important; color: #ffffff !important; padding: 6px !important; text-align: left !important;}
+td input:focus { background-color: #2a2a2a !important; }
+td input::placeholder { color: #555555; font-style: italic; opacity: 1; }
