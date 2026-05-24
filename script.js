@@ -127,17 +127,13 @@ function switchView(targetView) {
 const defaultData = {
     days: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
     headers: ['Morning', 'Recess', 'Lunch', 'Afternoon'],
-    rows: [
-        [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}],
-        [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}],
-        [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]
-    ],
+    rows: [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
     values: {
-        'Monday': [[{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]],
-        'Tuesday': [[{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]],
-        'Wednesday': [[{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]],
-        'Thursday': [[{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]],
-        'Friday': [[{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}], [{text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}, {text: '', completed: false}]]
+        'Monday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Tuesday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Wednesday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Thursday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']],
+        'Friday': [['', '', '', ''], ['', '', '', ''], ['', '', '', '']]
     }
 };
 
@@ -198,61 +194,17 @@ function renderSchedule() {
             const tr = document.createElement('tr');
             for(let cIdx = 0; cIdx < appData.headers.length; cIdx++) {
                 const td = document.createElement('td');
-                
-                // Flex wrapper container inside table cell for alignment
-                const cellWrapper = document.createElement('div');
-                cellWrapper.style.display = 'flex';
-                cellWrapper.style.alignItems = 'center';
-                cellWrapper.style.gap = '8px';
-                cellWrapper.style.width = '100%';
-
-                // Safe parsing validation handling logic for parsing older primitive strings 
-                let cellObj = rowData[cIdx];
-                if (typeof cellObj !== 'object' || cellObj === null) {
-                    cellObj = { text: cellObj || '', completed: false };
-                    appData.values[day][rIdx][cIdx] = cellObj;
-                }
-
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.checked = cellObj.completed || false;
-                checkbox.style.cursor = 'pointer';
-                checkbox.style.accentColor = '#ff1a1a';
-                checkbox.style.width = '16px';
-                checkbox.style.height = '16px';
-
                 const input = document.createElement('input');
                 input.type = 'text';
                 input.className = 'schedule-input';
-                input.value = cellObj.text || '';
+                input.value = rowData[cIdx] || '';
                 input.placeholder = 'Insert Task';
                 
-                // Strike through style formatting logic
-                if (cellObj.completed) {
-                    input.style.textDecoration = 'line-through';
-                    input.style.opacity = '0.5';
-                }
-
-                checkbox.addEventListener('change', (e) => {
-                    cellObj.completed = e.target.checked;
-                    if (cellObj.completed) {
-                        input.style.textDecoration = 'line-through';
-                        input.style.opacity = '0.5';
-                    } else {
-                        input.style.textDecoration = 'none';
-                        input.style.opacity = '1';
-                    }
-                    saveToCloud();
-                });
-
                 input.addEventListener('change', (e) => {
-                    cellObj.text = e.target.value;
+                    appData.values[day][rIdx][cIdx] = e.target.value;
                     saveToCloud();
                 });
-
-                cellWrapper.appendChild(checkbox);
-                cellWrapper.appendChild(input);
-                td.appendChild(cellWrapper);
+                td.appendChild(input);
                 tr.appendChild(td);
             }
             tbody.appendChild(tr);
@@ -292,7 +244,7 @@ function renderSchedule() {
 }
 
 function addRow(day) {
-    const newRow = Array.from({ length: appData.headers.length }, () => ({ text: '', completed: false }));
+    const newRow = new Array(appData.headers.length).fill('');
     if (!appData.values[day]) appData.values[day] = [];
     appData.values[day].push(newRow);
     saveToCloud(); renderSchedule();
@@ -311,9 +263,7 @@ function addColumn() {
     if (colName) {
         appData.headers.push(colName);
         appData.days.forEach(day => {
-            if (appData.values[day]) {
-                appData.values[day].forEach(row => row.push({ text: '', completed: false }));
-            }
+            if (appData.values[day]) appData.values[day].forEach(row => row.push(''));
         });
         saveToCloud(); renderSchedule();
     }
@@ -367,9 +317,9 @@ function addDay() {
     }
 
     const initialRows = [
-        Array.from({ length: appData.headers.length }, () => ({ text: '', completed: false })),
-        Array.from({ length: appData.headers.length }, () => ({ text: '', completed: false })),
-        Array.from({ length: appData.headers.length }, () => ({ text: '', completed: false }))
+        new Array(appData.headers.length).fill(''),
+        new Array(appData.headers.length).fill(''),
+        new Array(appData.headers.length).fill('')
     ];
 
     appData.days.push(nextDayName);
