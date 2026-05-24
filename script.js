@@ -59,20 +59,20 @@ function sendPasswordReset() {
     const resetMsg = document.getElementById('reset-msg');
     
     if(!email) {
-        alert("Please specify a valid recovery email target destination.");
+        alert("Please specify a valid account email address.");
         return;
     }
 
     auth.sendPasswordResetEmail(email)
         .then(() => {
-            resetMsg.innerText = "Reset confirmation link pushed successfully. Check your email inbox!";
+            // Updated to a formal message with a spam folder notice
+            resetMsg.innerHTML = "A password reset link has been successfully dispatched to your email address. If you do not receive the message within a few minutes, please check your spam or junk folders.";
             resetMsg.style.display = 'block';
         })
         .catch(err => {
             alert(err.message);
         });
 }
-
 function handleLogout() {
     auth.signOut();
 }
