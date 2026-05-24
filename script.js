@@ -19,7 +19,6 @@ function checkPassword() {
     const errorMsg = document.getElementById('error-msg');
     
     if (input === '4739') {
-        // Safety Check: Make sure Firebase scripts are fully loaded before trying to use them
         if (typeof firebase === 'undefined') {
             alert("Firebase libraries are still loading from the web. Please wait 2 seconds and try again!");
             return;
@@ -28,7 +27,6 @@ function checkPassword() {
         document.getElementById('password-screen').style.display = 'none';
         document.getElementById('main-content').style.display = 'block';
         
-        // Initialize Firebase client connections
         const firebaseConfig = {
             apiKey: FIREBASE_API_KEY,
             authDomain: FIREBASE_AUTH_DOMAIN,
@@ -65,7 +63,6 @@ const defaultData = {
 let appData = {};
 
 function initApp() {
-    // Set up a real-time live synchronization listener pipeline on the "shared_schedule" data tree path
     db.ref('shared_schedule').on('value', (snapshot) => {
         const data = snapshot.val();
         if (data) {
@@ -135,7 +132,9 @@ function renderSchedule() {
                 input.type = 'text';
                 input.value = rowData[cIdx] || '';
                 
-                // Updates Firebase live when user clicks away or completes typing
+                // Added the Insert Task placeholder rule here
+                input.placeholder = 'Insert Task';
+                
                 input.addEventListener('change', (e) => {
                     appData.values[day][rIdx][cIdx] = e.target.value;
                     saveToCloud();
