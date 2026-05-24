@@ -209,20 +209,20 @@ input:focus {
     gap: 15px;
 }
 
-/* Message Rows Flex Layout System */
+/* Message Rows Flex Layout Fix */
 .chat-msg-row {
     display: flex !important;
     width: 100% !important;
     flex-direction: column !important;
 }
 
-/* ALIGNMENT FLIP: Your messages (.self) go LEFT. Others go RIGHT. */
+/* CORRECT SETTING: Your messages (.self) go RIGHT. Others go LEFT. */
 .chat-msg-row.self {
-    align-items: flex-start !important;
+    align-items: flex-end !important;
 }
 
 .chat-msg-row:not(.self) {
-    align-items: flex-end !important;
+    align-items: flex-start !important;
 }
 
 .msg-container-block {
@@ -231,13 +231,13 @@ input:focus {
     max-width: 75% !important;
 }
 
-/* Match inner alignment rules with parent boundaries */
+/* Ensure inside blocks align securely to matching outer container edges */
 .chat-msg-row.self .msg-container-block {
-    align-items: flex-start !important;
+    align-items: flex-end !important;
 }
 
 .chat-msg-row:not(.self) .msg-container-block {
-    align-items: flex-end !important;
+    align-items: flex-start !important;
 }
 
 .chat-msg-bubble {
