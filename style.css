@@ -1,4 +1,6 @@
-/* Global Reset & Base Theme */
+/* ==========================================================================
+   Global Reset & Base Theme
+   ========================================================================== */
 * {
     margin: 0;
     padding: 0;
@@ -72,7 +74,9 @@ input:focus {
     text-decoration: underline;
 }
 
-/* Header & Tab Systems Styling */
+/* ==========================================================================
+   Header & Tab Systems Styling
+   ========================================================================== */
 .dashboard-header {
     text-align: center;
     padding: 20px 0;
@@ -119,7 +123,9 @@ input:focus {
     color: #ffffff;
 }
 
-/* Grid Layouts and Views */
+/* ==========================================================================
+   Grid Layouts and Views (Schedule)
+   ========================================================================== */
 .dashboard-view {
     padding: 20px;
     max-width: 1200px;
@@ -187,7 +193,57 @@ input:focus {
     color: #ffffff;
 }
 
-/* Live Chat Layouts */
+.table-container { 
+    width: 100%; 
+    overflow-x: auto; 
+    margin-top: 10px; 
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    background-color: #1f1f1f; 
+}
+
+th { 
+    background-color: #2d2d2d; 
+    color: #ff1a1a; 
+    padding: 12px; 
+    text-align: center; 
+    border: 1px solid #333333; 
+    font-size: 0.8rem; 
+    font-weight: 600; 
+    text-transform: uppercase; 
+    letter-spacing: 0.5px;
+}
+
+td { 
+    padding: 6px; 
+    border: 1px solid #333333; 
+}
+
+td input { 
+    width: 100%; 
+    background-color: transparent !important; 
+    border: none !important; 
+    color: #ffffff !important; 
+    padding: 6px !important; 
+    text-align: left !important;
+}
+
+td input:focus { 
+    background-color: #2a2a2a !important; 
+}
+
+td input::placeholder { 
+    color: #555555; 
+    font-style: italic; 
+    opacity: 1; 
+}
+
+/* ==========================================================================
+   Live Chat Layouts & Messages Container
+   ========================================================================== */
 .chat-wrapper {
     background-color: #161616;
     border: 1px solid #222222;
@@ -209,29 +265,35 @@ input:focus {
     gap: 15px;
 }
 
-/* Message Rows Flex Layout Fix */
+/* ==========================================================================
+   Message Rows Flex Layout System (Alignment Fixes)
+   ========================================================================== */
 .chat-msg-row {
     display: flex !important;
     width: 100% !important;
-    flex-direction: column !important;
+    flex-direction: row !important; /* Forces horizontal row alignment */
+    margin-bottom: 10px;
 }
 
-/* CORRECT SETTING: Your messages (.self) go RIGHT. Others go LEFT. */
+/* Your red messages go completely to the RIGHT hand side */
 .chat-msg-row.self {
-    align-items: flex-end !important;
+    justify-content: flex-end !important;
 }
 
+/* Other peoples' gray messages go completely to the LEFT hand side */
 .chat-msg-row:not(.self) {
-    align-items: flex-start !important;
+    justify-content: flex-start !important;
 }
 
+/* Layout container block housing the bubble + active reactions + menu drawer */
 .msg-container-block {
     display: flex !important;
     flex-direction: column !important;
     max-width: 75% !important;
+    width: auto !important;
 }
 
-/* Ensure inside blocks align securely to matching outer container edges */
+/* Align internal text/meta elements securely to match outer container edges */
 .chat-msg-row.self .msg-container-block {
     align-items: flex-end !important;
 }
@@ -240,6 +302,9 @@ input:focus {
     align-items: flex-start !important;
 }
 
+/* ==========================================================================
+   Chat Message Bubbles & Meta Details
+   ========================================================================== */
 .chat-msg-bubble {
     background-color: #262626;
     padding: 10px 14px;
@@ -297,7 +362,9 @@ input:focus {
     color: #f2f2f2;
 }
 
-/* Clickable Action Menu Drawer styling */
+/* ==========================================================================
+   Clickable Action Menu Drawer Styling
+   ========================================================================== */
 .msg-action-menu-drawer {
     display: flex;
     flex-direction: column;
@@ -394,7 +461,9 @@ input:focus {
     color: #ffffff;
 }
 
-/* Reply target view layouts */
+/* ==========================================================================
+   Reply Target Input Preview Bar & Areas
+   ========================================================================== */
 .reply-preview-bar {
     background-color: #1a1a1a;
     border-top: 1px solid #ff1a1a;
@@ -456,12 +525,3 @@ input:focus {
 .chat-input-area button:hover {
     background-color: #cc0000;
 }
-
-/* Schedule Layouts */
-.table-container { width: 100%; overflow-x: auto; margin-top: 10px; }
-table { width: 100%; border-collapse: collapse; background-color: #1f1f1f; }
-th { background-color: #2d2d2d; color: #ff1a1a; padding: 12px; text-align: center; border: 1px solid #333333; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
-td { padding: 6px; border: 1px solid #333333; }
-td input { width: 100%; background-color: transparent !important; border: none !important; color: #ffffff !important; padding: 6px !important; text-align: left !important;}
-td input:focus { background-color: #2a2a2a !important; }
-td input::placeholder { color: #555555; font-style: italic; opacity: 1; }
