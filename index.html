@@ -10,21 +10,64 @@
 <body>
 
     <div id="password-screen">
-        <div class="login-box">
+        <div class="login-box" id="auth-box">
             <h2>REDFLAG BUILD:</h2>
-            <p>Enter Access Password</p>
-            <input type="password" id="password-input" placeholder="••••">
+            <p id="auth-instruction">Sign in with your individual account</p>
+            
+            <input type="email" id="email-input" placeholder="Email Address">
+            <br><br>
+            <input type="password" id="password-input" placeholder="Password">
             <br>
-            <button onclick="checkPassword()">Unlock</button>
-            <p id="error-msg" style="color: red; display: none; margin-top: 10px;">Incorrect Code</p>
+            
+            <button id="main-auth-btn" onclick="handleAuth()">Login</button>
+            <p class="toggle-auth-text" onclick="toggleAuthMode()">Don't have an account? <span class="accent-link">Sign Up</span></p>
+            <p class="forgot-text" onclick="showForgotPassword()">Forgot Password?</p>
+            
+            <p id="error-msg" style="color: #ff4d4d; display: none; margin-top: 10px; font-size: 0.85rem;"></p>
+        </div>
+
+        <div class="login-box" id="forgot-box" style="display: none;">
+            <h2>RESET PASSWORD</h2>
+            <p>Enter your registered email below to receive a recovery reset link.</p>
+            <input type="email" id="reset-email-input" placeholder="Account Email">
+            <br>
+            <button onclick="sendPasswordReset()">Send Reset Link</button>
+            <p class="forgot-text" onclick="hideForgotPassword()">Back to Login</p>
+            <p id="reset-msg" style="color: #4dff4d; display: none; margin-top: 10px; font-size: 0.85rem;"></p>
         </div>
     </div>
 
- <div id="main-content" style="display: none;">
-        <h1 class="main-title">REDFLAG BUILD:</h1>
-        <div id="schedule-container"></div>
+    <div id="main-content" style="display: none;">
+        
+        <header class="dashboard-header">
+            <h1 class="main-title">REDFLAG BUILD:</h1>
+            <div class="tab-navigation">
+                <button id="tab-schedule-btn" class="tab-btn active" onclick="switchView('schedule')">Schedule View</button>
+                <button id="tab-chat-btn" class="tab-btn" onclick="switchView('chat')">Team Chat</button>
+                <button id="logout-btn" class="tab-btn logout" onclick="handleLogout()">Logout</button>
+            </div>
+        </header>
+
+        <section id="view-schedule" class="dashboard-view">
+            <div id="schedule-container"></div>
+        </section>
+
+        <section id="view-chat" class="dashboard-view" style="display: none;">
+            <div class="chat-wrapper">
+                <div id="chat-messages-box" class="chat-messages"></div>
+                <div class="chat-input-area">
+                    <input type="text" id="chat-msg-input" placeholder="Type a message...">
+                    <button onclick="sendChatMessage()">Send</button>
+                </div>
+            </div>
+        </section>
+        
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+    
     <script src="script.js"></script>
 </body>
 </html>
